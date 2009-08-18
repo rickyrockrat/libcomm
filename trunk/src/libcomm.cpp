@@ -22,7 +22,7 @@ void libcomm::init() {
 
   // Add builtin classes
   String::type = serManager->addDeserializationFunc(&String::deserialize);
-
+  
   // Vector of chars
   Vector<char>::type = serManager->addDeserializationFunc(
                                   &Vector<char>::deserialize);

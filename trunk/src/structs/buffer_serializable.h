@@ -16,6 +16,8 @@
 #include <errno.h>
 #include <iostream>
 
+class InputStream;
+
 #define BLOCK_SIZE 32
 
 //! \class Buffer libcomm/structs/buffer_serializable.h
@@ -39,12 +41,12 @@ class Buffer : public Serializable {
   protected:
     static uint16_t type;
     
-    int returnDataSize() const;
     NetMessage *serialize() const;
     virtual uint16_t getType() const;
     static Serializable *deserialize(const NetMessage &data, bool ptr);
 
     friend class libcomm;
+    friend class InputStream;
   public :
     static const size_t end;
 
@@ -232,37 +234,33 @@ inline T& Buffer<T>::operator[] (size_t index) {
 }
 
 template <typename T>
-int Buffer<T>::returnDataSize() const {
-  return (sizeof(uint64_t) + realSize*sizeof(T));
-}
-
-template <typename T>
 uint16_t Buffer<T>::getType() const {
   return type; 
 }
 
 template <typename T>
-NetMessage *Buffer<T>::serialize() const {
-  size_t sizeSize = 0;
-  char *c = convertToChars((uint64_t) this->size(), sizeSize);
-  NetMessage *message = new NetMessage(getType(), c, sizeSize);
-  if (message != NULL) {
-    message->addData((char *) array,realSize*sizeof(T));
-  }
+NetMessage *Buffer<T>::serialize(void) const {
+  NetMessage *message;
+
+  message = new NetMessage(getType());
+  message->addDataBlock((char*) array,realSize*sizeof(T), false);
   return message;
 }
 
 template <typename T>
 Serializable *Buffer<T>::deserialize(const NetMessage &data, bool ptr) {
   Buffer<T> *buffer;
+  chariovec *iov;
+  int iovcnt;
 
-  const char *buff = data.getData();
-  uint64_t size = convertToUInt64(buff);
-  int currentPos = sizeof(uint64_t);
-  
-  buffer = new Buffer<T>(size);
-  buffer->copyIn(0,(T*)&(buff[currentPos]),size);
-  
+  iov = data.getDataBlocks(&iovcnt);
+  buffer = new Buffer<T>();
+  if (iovcnt == 1) {
+    std::cout << "size:" << iov[0].iov_len / sizeof(T) << std::endl;
+    buffer->set_data((T*) iov[0].iov_base, iov[0].iov_len / sizeof(T));
+  }
+  free(iov);
+
   if (ptr) {
     Buffer<T> **bufferPtr = new Buffer<T>*();
     *bufferPtr = buffer;

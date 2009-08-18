@@ -18,7 +18,7 @@ ConfigLoader::ConfigLoader() :
   interfaceNumber(""), id(-1), participantsIter(0), clientsIter(0) {
 
   itSelf = (Participant*) NULL;
-  interfacesIpsMapping = NetAddress::getInterfaces();
+  //interfacesIpsMapping = NetAddress::getInterfaces();
 }
 
 ConfigLoader::~ConfigLoader() {
@@ -34,7 +34,7 @@ ConfigLoader::~ConfigLoader() {
   for (; iter3 != clients.end(); ++iter3) {
     delete iter3->second;
   }
-  delete interfacesIpsMapping;
+  //delete interfacesIpsMapping;
   std::map<uint16_t, std::map<std::string, std::string*> >::iterator iter4;
   
   for (iter4 = per_process_params.begin(); iter4 != per_process_params.end(); ++iter4) {

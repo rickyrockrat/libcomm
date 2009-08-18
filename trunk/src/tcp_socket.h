@@ -2,59 +2,40 @@
 #define TCP_SOCKET_H
 
 #include "net_socket.h"
-#include "structs/buffer_serializable.h"
-
 #include <vector>
 
-class TcpSocket : public NetSocket {
+class TcpSocket : public IONetSocket {
   private :
-    char *resiliantData;
-    size_t resiliantDataSize;
-    size_t lastTestedIndex;
 
     TcpSocket(int sockedId);
-    NetMessage *tryBuildObject(char *&buff, size_t &totalSize);
-    std::string *tryBuildString(char *&buff, size_t &totalSize);
-    bool containsCRLF(char *buff, size_t size, size_t *index);
-    void receiveData(char *&buff, size_t &totalSize);
-    static void launchNetExceptionForGetPeerName(int code);
-    static void launchNetExceptionForConnect(int code);
-    static void launchNetExceptionForAccept(int code);
+    
+    /*ssize_t readData(   char *buffer, size_t size, int flags,
+                        NetAddress *addr);*/
+    ssize_t readRawData(char *buffer, size_t size, int flags,
+                        NetAddress *addr);
+    ssize_t peekData(   char *buffer, size_t size,
+                        NetAddress *addr);
+    ssize_t writeData(  const char *data, size_t size, int flags,
+                        const NetAddress *addr);
+    ssize_t writeData(  const struct iovec *iov, int iovcnt,
+                        const NetAddress *addr);
 
     friend class TcpServerSocket;
   public :
-    TcpSocket();
+    TcpSocket(void);
     TcpSocket(const NetAddress &address);
     virtual ~TcpSocket();
-    void shutdownSocket(bool read, bool write);
-    void connectSocket(const NetAddress &address);
-    void connectSocket(const NetAddress &address, uint64_t nanosec);
-    void connectSocket(const NetAddress &address, time_t sec, long nanosec);
-    void sendObject(const Serializable &object);
-    void sendString(const std::string &string);
-    void sendBytes(const Buffer<char> &data);
-    Serializable *receiveObject();
-    Serializable *receiveObject(uint64_t nanosec);
-    Serializable *receiveObject(time_t sec, long nanosec);
-    static Serializable *receiveObject(const std::vector<TcpSocket*> &sockets,
-      int *socket_index);
-    static Serializable *receiveObject(const std::vector<TcpSocket*> &sockets,
-      uint64_t nanosec, int *socket_index);
-    static Serializable *receiveObject(const std::vector<TcpSocket*> &sockets,
-      time_t sec, long nanosec, int *socket_index);
-    std::string *receiveString(void);
-    Buffer<char> *receiveBytes(void);
 
-    NetAddress getDistantAddress() const;
-  
+    void shutdownSocket(bool read, bool write);
 };
 
 class TcpServerSocket : public NetSocket {
   
   private:
+    int socketId;
+
     void listenTo(int backlog);
-    static void launchNetExceptionForListen(int code);
-    static void launchNetExceptionForAccept(int code);
+    int getSocketId(void) const;
 
   public :
     TcpServerSocket();
@@ -63,6 +44,8 @@ class TcpServerSocket : public NetSocket {
     TcpSocket *acceptConnection();
     TcpSocket *acceptConnection(uint64_t nanosec);
     TcpSocket *acceptConnection(time_t sec, long nanosec);
+
+    void closeServer(void);
 };
 
 #endif

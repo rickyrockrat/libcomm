@@ -31,7 +31,7 @@ class SerializationManager {
 
     SerializationManager(void);
     static SerializationManager *self;
-    NetMessage *mergeMessage(NetMessage *message, NetMessage *toAdd) const;
+    NetMessage *mergeMessage(NetMessage *message, NetMessage *newMessage) const;
   
   public :
 
@@ -73,35 +73,26 @@ class SerializationManager {
     //! (see Serializable::deserialize())
     //! \return the value deserialized or NULL if an error occurs
     //!
-    //! Returns an newly created value deserialized from the given NetMessage.
-    //! The value can be either a primitive value or an object. The ptr parameter
-    //! can be false most of the time; it is only usefull for template classes
-    //! like Vector. When ptr is false, the method always returns a pointer
-    //! to the deserialized value.
+    //! Returns a newly created pointer on the value deserialized from the
+    //! given NetMessage. The value can be either a primitive value or an object.
+    //! If ptr is true, the returned pointer points to a pointer to the value:
+    //! For a serializable object, it will return Serializable**.
     void *deserialize(const NetMessage &message, bool ptr);
-
+    
     //! \brief Deserializes a NetMessage into an object or a primitive value
-    //! \param[in] message the NetMessage to deserialize from
-    //! \param[in,out] currentPosition the position in the array of bytes to
-    //!   start from. After deserialization, sets to the position of the byte 
-    //!   after the last byte read.
+    //! \param[in] message the NetMessage pointer to deserialize from
     //! \param[in] ptr boolean passed to the deserialize method
     //! (see Serializable::deserialize())
     //! \return the value deserialized or NULL if an error occurs
     //!
-    //! Returns an newly created value deserialized from the given NetMessage.
-    //! The value can be either a primitive value or an object. The ptr parameter
-    //! can be false most of the time; it is only usefull for template classes
-    //! like Vector. When ptr is false, the method always returns a pointer
-    //! to the deserialized value. This method is usefull to deserialize
-    //! several values from the same NetMessages. See the class description
-    //! for more details.
-    void *deserialize(const NetMessage &data, int &currentPosition, bool ptr);
-    
+    //! Returns a newly created pointer on the value deserialized from the
+    //! given NetMessage. The value can be either a primitive value or an object.
+    //! If ptr is true, the returned pointer points to a pointer to the value:
+    //! For a serializable object, it will return Serializable**.
+    void *deserialize(const NetMessage *message, bool ptr);
+
     // deserialize primitive. Used by libcomm class only
     void *deserializePrimitive(const NetMessage &message);
-    NetMessage *checkAndSerialize(const Serializable &object, NetMessage *message) const;
-    NetMessage *checkAndSerialize(const Serializable *object, NetMessage *message) const;
     
     //! \brief Serializes an object
     //! \param[in] object the object to serialize
@@ -226,36 +217,6 @@ class SerializationManager {
     //! of an objet reference
     NetMessage *serialize(uint64_t i, NetMessage *message) const;
 
-    //! \brief Gets the serialized size of an object
-    //! \param[in] object the object to get size of
-    //! \param[in] withHeaders if true, size of headers is added to the content
-    //! size of the object
-    //! \return the serialized size
-    //!
-    //! Gets the serialized size of the given object, with headers size if
-    //! withHeaders is true
-    int getSerializedSize(const Serializable &object, bool withHeaders) const;
-
-    //! \brief Gets the serialized size of an object
-    //! \param[in] object the object to get size of
-    //! \param[in] withHeaders if true, size of headers is added to the content
-    //! size of the object
-    //! \return the serialized size
-    //!
-    //! Similar to SerializationManager::getSerializedSize, but with a pointer
-    //! to an object instead of an object reference.
-    int getSerializedSize(const Serializable *object, bool withHeaders) const;
-    int getSerializedSize(char c, bool withHeaders) const;
-    int getSerializedSize(float f, bool withHeaders) const;
-    int getSerializedSize(double d, bool withHeaders) const;
-    int getSerializedSize(int8_t i, bool withHeaders) const;
-    int getSerializedSize(int16_t i, bool withHeaders) const;
-    int getSerializedSize(int32_t i, bool withHeaders) const;
-    int getSerializedSize(int64_t i, bool withHeaders) const;
-    int getSerializedSize(uint8_t i, bool withHeaders) const;
-    int getSerializedSize(uint16_t i, bool withHeaders) const;
-    int getSerializedSize(uint32_t i, bool withHeaders) const;
-    int getSerializedSize(uint64_t i, bool withHeaders) const;
     void deleteT(Serializable &object) const;
     void deleteT(Serializable *object) const;
     void deleteT(char c) const;

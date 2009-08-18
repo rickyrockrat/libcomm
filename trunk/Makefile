@@ -17,8 +17,12 @@ SRC = exception.cpp \
 			net_message.cpp \
 			net_address.cpp \
 			net_socket.cpp \
-			udp_socket.cpp \
 			tcp_socket.cpp \
+			udp_socket.cpp \
+      file.cpp\
+      stream.cpp\
+      input_stream.cpp\
+      output_stream.cpp\
 			serialization_manager.cpp \
 			thread.cpp \
       mutex.cpp \
@@ -28,16 +32,19 @@ SRC = exception.cpp \
       participant.cpp \
       config_loader.cpp
 
-SRC_STRUCTS = structs/simple_serializable.cpp \
-              structs/auto_serializable.cpp \
-              structs/string_serializable.cpp \
+
+SRC_STRUCTS = structs/string_serializable.cpp \
 							structs/vector_serializable.cpp \
-							structs/buffer_serializable.cpp \
+							structs/buffer_serializable.cpp\
               structs/map_serializable.cpp \
+              structs/simple_serializable.cpp \
+              structs/auto_serializable.cpp \
               structs/null_placeholder.cpp
 
 SRC_FINAL = libcomm_structs.cpp \
 						libcomm.cpp
+
+#SRC_FINAL = libcomm.cpp
 
 OBJS = $(SRC:%.cpp=$(OBJSDIR)%.o)
 OBJS += $(SRC_STRUCTS:%.cpp=$(OBJSDIR)%.o)

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define NB_NSEC_PER_SEC 1000000000
+
 #include "types_utils.h"
 
 int littleEndian = -1;
@@ -215,4 +217,13 @@ double convertToDouble(const char* buf) {
   }
   
   return swpd.d;
+}
+
+void nanosecToSecNsec(uint64_t nanosec, time_t *sec, long *nsec) {
+  *sec = nanosec / NB_NSEC_PER_SEC;
+  *nsec = nanosec % NB_NSEC_PER_SEC;
+}
+
+uint64_t secNsecToNanosec(time_t sec, long nanosec) {
+  return (sec * NB_NSEC_PER_SEC + nanosec);
 }
