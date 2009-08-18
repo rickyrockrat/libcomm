@@ -8,6 +8,12 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
+#define EX_STREAM_TIMEOUT -1
+#define EX_ACCEPT_TIMEOUT -2
+#define EX_STREAM_CLOSED -3
+#define EX_EOF -4
+#define EX_OSTREAM_TOO_MUCH_DATA -5
+
 #include <string>
 
 //! \class Exception libcomm/exception.h
@@ -19,6 +25,16 @@ class Exception {
     std::string message;
 
   public :
+
+    //! \brief Exception constuctor
+    //!
+    //! Creates a new Exception.
+    Exception(void);
+
+    //! \brief Exception constuctor
+    //!
+    //! Creates a new Exception.
+    Exception(int code);
 
     //! \brief Exception constuctor
     //! \param code the exception code

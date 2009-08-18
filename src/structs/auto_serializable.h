@@ -16,6 +16,9 @@
 #include <vector>
 #include <iostream>
 
+#define _QUOTEME(x) #x
+#define QUOTEME(x) _QUOTEME(x)
+
 //! \class AutoSerializable libcomm/structs/auto_serializable.h
 //! \brief Automatic Serializable class
 //!
@@ -87,25 +90,33 @@ class AutoSerializable : public Serializable {
   private :
     static uint16_t type;
     
-    virtual int returnDataSize() const = 0;
     virtual NetMessage *serialize() const = 0;
     virtual uint16_t getType() const = 0;
- //   virtual void copyFields(const AutoSerializable *s) = 0;
     static Serializable *deserialize(const NetMessage &data, bool ptr);         
     friend class SerializationManager;
     friend class libcomm;
   protected :
     //helpers
     char *cvrtochars(uint8_t uint, size_t &size);
+    void cvrtochars(uint8_t uint, char *data, size_t &size);
     char *cvrtochars(uint16_t uint, size_t &size);
+    void cvrtochars(uint16_t uint, char *data, size_t &size);
     char *cvrtochars(uint32_t uint, size_t &size);
+    void cvrtochars(uint32_t uint, char *data, size_t &size);
     char *cvrtochars(uint64_t uint, size_t &size);
+    void cvrtochars(uint64_t uint, char *data, size_t &size);
     char *cvrtochars(int8_t i, size_t &size);
+    void cvrtochars(int8_t i, char *data, size_t &size);
     char *cvrtochars(int16_t i, size_t &size);
+    void cvrtochars(int16_t i, char *data, size_t &size);
     char *cvrtochars(int32_t i, size_t &size);
+    void cvrtochars(int32_t i, char *data, size_t &size);
     char *cvrtochars(int64_t i, size_t &size);
+    void cvrtochars(int64_t i, char *data, size_t &size);
     char *cvrtochars(float f, size_t &size);
+    void cvrtochars(float f, char *data, size_t &size);
     char *cvrtochars(double d, size_t &size);
+    void cvrtochars(double d, char *data, size_t &size);
 
   protected :
     AutoSerializable();
@@ -207,8 +218,8 @@ class AutoSerializable : public Serializable {
   private:\
   type name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE(name,type) \
   AUTO_SER_FIELD_SERIALIZE(name) \
-  AUTO_SER_FIELD_RETURN_SIZE(name) \
   AUTO_SER_FIELD_DESERIALIZE(type,name) \
 
 //! \def AUTO_SER_FIELD_2(type,name)
@@ -222,8 +233,8 @@ class AutoSerializable : public Serializable {
   private:\
   type1,type2 name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE_2(name,type1,type2) \
   AUTO_SER_FIELD_SERIALIZE(name) \
-  AUTO_SER_FIELD_RETURN_SIZE(name) \
   AUTO_SER_FIELD_DESERIALIZE_2(type1,type2,name) \
 
 
@@ -279,16 +290,16 @@ class AutoSerializable : public Serializable {
   private:\
   type *name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE(name,type) \
   AUTO_SER_FIELD_SERIALIZE(name) \
-  AUTO_SER_FIELD_RETURN_SIZE(name) \
   AUTO_SER_FIELD_DESERIALIZE_PTR(type,name) \
 
 #define AUTO_SER_FIELD_PTR_2(type1,type2,name) \
   private:\
   type1,type2 *name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE_2(name,type1,type2) \
   AUTO_SER_FIELD_SERIALIZE(name) \
-  AUTO_SER_FIELD_RETURN_SIZE(name) \
   AUTO_SER_FIELD_DESERIALIZE_PTR_2(type1,type2,name) \
 
 
@@ -320,8 +331,8 @@ class AutoSerializable : public Serializable {
   private:\
   type name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE(name,type) \
   AUTO_SER_PRIMITIVE_FIELD_SERIALIZE(name) \
-  AUTO_SER_PRIMITIVE_FIELD_RETURN_SIZE(name) \
   AUTO_SER_PRIMITIVE_FIELD_DESERIALIZE(type,name) \
 
 #define AUTO_SER_PRIMITIVE_FIELD_PTR_WITH_GET(type,name) \
@@ -352,55 +363,59 @@ class AutoSerializable : public Serializable {
   private:\
   type *name; \
   AUTO_SER_ENTRY_POINTS(name) \
+  AUTO_SER_RETURN_SIZE_PRIMITIVE(name,type) \
   AUTO_SER_PRIMITIVE_FIELD_SERIALIZE_PTR(name) \
-  AUTO_SER_PRIMITIVE_FIELD_RETURN_SIZE_PTR(name) \
   AUTO_SER_PRIMITIVE_FIELD_DESERIALIZE_PTR(type,name) \
-
 
 
 #define AUTO_SER_ENTRY_POINTS(name) \
   private:\
   template <typename T>\
-  static NetMessage *serializeEntryPointMember##name(void* pthis,MyType<T> t,NetMessage *m) {\
+  static NetMessage *serializeEntryPointMember##name(void* pthis,MyType<T> t,NetMessage *m, char *data, size_t &size) {\
     T* p = (T*) pthis;\
-    return p->serializeMember##name(m);\
-  }\
-  template <typename T>\
-  static int returnDataSizeEntryPointMember##name(void* pthis,MyType<T> t) {\
-    T* p = (T*) pthis;\
-    return p->returnDataSizeMember##name();\
+    return p->serializeMember##name(m, data, size);\
   }\
 
+#define AUTO_SER_RETURN_SIZE_PRIMITIVE(name,type) \
+  static size_t returnSizePrimitive##name(void) {\
+    return sizeof(type);\
+  }
+
+#define AUTO_SER_RETURN_SIZE_PRIMITIVE_2(name,type1,type2) \
+  static size_t returnSizePrimitive##name(void) {\
+    return sizeof(type1,type2);\
+  }
+
 #define AUTO_SER_FIELD_SERIALIZE(name) \
-   NetMessage *serializeMember##name(NetMessage *m) { \
+   NetMessage *serializeMember##name(NetMessage *m, char *data, size_t &currentPos) { \
+   std::cout << "Serialize object member \"" QUOTEME(name) << "\"" << std::endl;\
     if (m != NULL) { \
       return SerializationManager::getSerializationManager()->\
         serialize(name,m);\
     }\
     return m;\
   }
-#define AUTO_SER_FIELD_RETURN_SIZE(name) \
-  int returnDataSizeMember##name() {\
-    return SerializationManager::getSerializationManager()->\
-      getSerializedSize(name,true);\
-  }\
 
 #define AUTO_SER_FIELD_DESERIALIZE(type,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type* ser =  (type*) SerializationManager::getSerializationManager()->deserialize(data,currentPos,false);\
-      if (ser != (type*) NULL) {\
-        c->name = *(type*)ser;\
-        delete ser;\
-      }\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    const std::vector<NetMessage*> &messages = data.getMessages();\
+    type* ser = (type*) SerializationManager::getSerializationManager()->deserialize(*(messages[netMessageIndex]),false);\
+    ++netMessageIndex;\
+    if (ser != (type*) NULL) {\
+      c->name = *(type*)ser;\
+      delete ser;\
+    }\
   }\
 
 #define AUTO_SER_FIELD_DESERIALIZE_2(type1,type2,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type1,type2* ser =  (type1,type2*) SerializationManager::getSerializationManager()->deserialize(data,currentPos,false);\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    const std::vector<NetMessage*> &messages = data.getMessages();\
+    type1,type2* ser = (type1,type2*) SerializationManager::getSerializationManager()->deserialize(*(messages[netMessageIndex]),false);\
+    ++netMessageIndex;\
       if (ser != (type1,type2*) NULL) {\
         c->name = *(type1,type2*)ser;\
         delete ser;\
@@ -410,56 +425,41 @@ class AutoSerializable : public Serializable {
 #define AUTO_SER_FIELD_DESERIALIZE_PTR(type,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type* ser =  (type*) SerializationManager::getSerializationManager()->deserialize(data,currentPos,false);\
-      if (ser != (type*) NULL) {\
-        c->name = (type*)ser;\
-      }\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    const std::vector<NetMessage*> &messages = data.getMessages();\
+    type* ser = (type*) SerializationManager::getSerializationManager()->deserialize(*(messages[netMessageIndex]),false);\
+    ++netMessageIndex;\
+    if (ser != (type*) NULL) {\
+      c->name = (type*)ser;\
+    }\
   }\
 
 #define AUTO_SER_FIELD_DESERIALIZE_PTR_2(type1,type2,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type1,type2* ser =  (type1,type2*) SerializationManager::getSerializationManager()->deserialize(data,currentPos,false);\
-      if (ser != (type1,type2*) NULL) {\
-        c->name = (type1,type2*)ser;\
-      }\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    const std::vector<NetMessage*> &messages = data.getMessages();\
+    type1,type2* ser = (type1,type2*) SerializationManager::getSerializationManager()->deserialize(*(messages[netMessageIndex]),false);\
+    ++netMessageIndex;\
+    if (ser != (type1,type2*) NULL) {\
+      c->name = (type1,type2*)ser;\
+    }\
   }\
 
     
 #define AUTO_SER_PRIMITIVE_FIELD_SERIALIZE(name) \
-   NetMessage *serializeMember##name(NetMessage *m) { \
-    size_t size = 0;\
-    char *converted = cvrtochars(name,size);\
-    if (m != NULL) \
-      m->addData(converted,size);\
-    free(converted);\
+  NetMessage *serializeMember##name(NetMessage *m, char *data, size_t &currentPos) { \
+    std::cout << "Serialize primitive member \"" QUOTEME(name) << "\": currentPos:"<< currentPos << std::endl;\
+    cvrtochars(name, &(data[currentPos]), currentPos);\
     return m;\
    }
 
 #define AUTO_SER_PRIMITIVE_FIELD_SERIALIZE_PTR(name) \
-   NetMessage *serializeMember##name(NetMessage *m) { \
-    size_t size = 0;\
-    char *converted = cvrtochars(*name,size);\
-    if (m != NULL) \
-      m->addData(converted,size);\
-    free(converted);\
+  NetMessage *serializeMember##name(NetMessage *m, char *data, size_t &currentPos) { \
+    cvrtochars(*name, &(data[currentPos]), currentPos);\
     return m;\
    }
 
-
-#define AUTO_SER_PRIMITIVE_FIELD_RETURN_SIZE(name) \
-  int returnDataSizeMember##name() {\
-    return SerializationManager::getSerializationManager()->\
-      getSerializedSize(name,false);\
-  }\
-
-#define AUTO_SER_PRIMITIVE_FIELD_RETURN_SIZE_PTR(name) \
-  int returnDataSizeMember##name() {\
-    return SerializationManager::getSerializationManager()->\
-      getSerializedSize(*name,false);\
-  }\
 
 #define AUTO_SER_CONVERT_uint8_t(x) convertToUInt8(x)
 #define AUTO_SER_CONVERT_uint16_t(x) convertToUInt16(x)
@@ -476,18 +476,16 @@ class AutoSerializable : public Serializable {
 #define AUTO_SER_PRIMITIVE_FIELD_DESERIALIZE(type,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type converted = (type) AUTO_SER_CONVERT_##type(&(data.getData()[currentPos]));\
-    currentPos += sizeof(type);\
-    c->name = converted;\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    std::cout << "Derialize primitive member \"" QUOTEME(name) << "\"" << std::endl;\
+    c->name = (type) AUTO_SER_CONVERT_##type(data.getDataFromBlock(2,offset,sizeof(type)));\
   }\
 
 #define AUTO_SER_PRIMITIVE_FIELD_DESERIALIZE_PTR(type,name) \
   template <typename T> \
   static void deserializeMember##name(T *c,\
-    const NetMessage &data, int &currentPos) { \
-    type converted = AUTO_SER_CONVERT_##type(&(data.getData()[currentPos]));\
-    currentPos += sizeof(type);\
+    const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
+    type converted = (type) AUTO_SER_CONVERT_##type(data.getDataFromBlock(2,offset,sizeof(type)));\
     type *convertedPtr = new type;\
     *convertedPtr = converted;\
     c->name = convertedPtr;\
@@ -498,8 +496,8 @@ class AutoSerializable : public Serializable {
 //! \param name name of the field
 #define ITEM(name) \
   (className::autoSerSerializeFunc) className::serializeEntryPointMember##name,\
-  (className::autoSerReturnDataSizeFunc) className::returnDataSizeEntryPointMember##name,\
-  (className::autoSerDeserialiseFunc) className::deserializeMember##name
+  (className::autoSerDeserialiseFunc) className::deserializeMember##name,\
+  (className::autoSerReturnSizePrimitive) className::returnSizePrimitive##name
 
 
 //! \def AUTO_SER_STUFF(...)
@@ -539,14 +537,14 @@ class AutoSerializable : public Serializable {
 
 #define AUTO_SER_CLASS_OTHER_FUNCS \
   public:\
-  typedef NetMessage* (*autoSerSerializeFunc) (void*,MyType<className>,NetMessage*);\
-  typedef int (*autoSerReturnDataSizeFunc) (void*,MyType<className>);\
-  typedef void (*autoSerDeserialiseFunc) (className*,const NetMessage&,int&);\
+  typedef NetMessage* (*autoSerSerializeFunc) (void*,MyType<className>,NetMessage*, char *data, size_t &currentPos);\
+  typedef void (*autoSerDeserialiseFunc) (className*,const NetMessage&, size_t &offset, size_t &netMessageIndex);\
+  typedef size_t (*autoSerReturnSizePrimitive) (void);\
   private:\
   MyType<className> classType;\
   static std::vector<autoSerSerializeFunc> serFuncs;\
-  static std::vector<autoSerReturnDataSizeFunc> sizeFuncs;\
   static std::vector<autoSerDeserialiseFunc> deserFuncs;\
+  static size_t sizePrimitiveFields;\
   static void initMembers(int ph,...) {\
     va_list ap;\
     va_start(ap,ph);\
@@ -558,10 +556,10 @@ class AutoSerializable : public Serializable {
           serFuncs.push_back((className::autoSerSerializeFunc) v);\
           break;\
         case 1:\
-          sizeFuncs.push_back((className::autoSerReturnDataSizeFunc) v);\
+          deserFuncs.push_back((className::autoSerDeserialiseFunc) v);\
           break;\
         case 2:\
-          deserFuncs.push_back((className::autoSerDeserialiseFunc) v);\
+          sizePrimitiveFields += ((className::autoSerReturnSizePrimitive) v)();\
           break;\
       }\
       ++i;\
@@ -585,22 +583,16 @@ class AutoSerializable : public Serializable {
 
 #define AUTO_SER_CLASS_SER_FUNCS \
   protected:\
-  virtual int returnDataSize() const {\
-    int size = 0;\
-    std::vector<autoSerReturnDataSizeFunc>::iterator it = sizeFuncs.begin();\
-    for(;it != sizeFuncs.end(); ++it){\
-      size += (*it)((void*)this,classType);\
-    }\
-    return size;\
-  }\
   static Serializable *deserialize(const NetMessage &data, bool ptr) {\
-    className *c = new className();   \
+    std::cout << "Main deserialize class \"" QUOTEME(className) << "\""<< std::endl;\
+    size_t offset = 0;\
+    size_t netMessageIndex = 0;\
+    className *c = new className();\
     className **cptr = NULL; \
     if (ptr) cptr = new className*();\
-    int currentPos = 0; \
-    std::vector<autoSerDeserialiseFunc>::iterator it = deserFuncs.begin();\
-    for(;it != deserFuncs.end(); ++it){\
-      (*it)(c,data,currentPos);\
+    std::vector<autoSerDeserialiseFunc>::iterator it;\
+    for(it = deserFuncs.begin();it != deserFuncs.end();++it){\
+      (*it)(c,data,offset,netMessageIndex);\
     }\
     if (ptr) { \
       *cptr = c; \
@@ -609,41 +601,38 @@ class AutoSerializable : public Serializable {
       return c; \
     }\
   }\
-  int deserialize(const NetMessage &data) {\
-    int currentPos = 0; \
-    std::vector<autoSerDeserialiseFunc>::iterator it = deserFuncs.begin();\
-    for(;it != deserFuncs.end(); ++it){\
-      (*it)(this,data,currentPos);\
+  void deserialize(const NetMessage &data, size_t &offset, size_t &netMessageIndex) {\
+    std::vector<autoSerDeserialiseFunc>::iterator it;\
+    for(it=deserFuncs.begin();it != deserFuncs.end();++it){\
+      (*it)(this,data,offset,netMessageIndex);\
     }\
-    return currentPos;\
   }\
   virtual NetMessage *serialize() const {\
-    NetMessage *message = new NetMessage(getType(),NULL,0);\
+    char *data = NULL;\
+    size_t currentPos = 0;\
+    if (sizePrimitiveFields != 0) data = (char*) malloc(sizePrimitiveFields);\
+    std::cout << "Main serialize class \"" QUOTEME(className) << "\" with type " << getType() << std::endl;\
+    NetMessage *message = new NetMessage(getType());\
     std::vector<autoSerSerializeFunc>::iterator it = serFuncs.begin();\
     for(;it != serFuncs.end(); ++it){\
-      message = (*it)((void*)this,classType,message);\
+      message = (*it)((void*)this,classType,message,data,currentPos);\
     }\
+    if (sizePrimitiveFields != 0) message->addDataBlock(data, currentPos, true);\
     return message;\
   }
 
 #define AUTO_SER_CLASS_SUPERCLASS_SER_FUNCS(superclass) \
   protected:\
-  virtual int returnDataSize() const {\
-    int size = superclass::returnDataSize();\
-    std::vector<autoSerReturnDataSizeFunc>::iterator it = sizeFuncs.begin();\
-    for(;it != sizeFuncs.end(); ++it){\
-      size += (*it)((void*)this,classType);\
-    }\
-    return size;\
-  }\
   static Serializable *deserialize(const NetMessage &data, bool ptr) {\
+    size_t offset = 0;\
+    size_t netMessageIndex = 0;\
     className *c = new className();\
-    int currentPos = c->superclass::deserialize(data);\
+    c->superclass::deserialize(data, offset, netMessageIndex);\
     className **cptr = NULL; \
     if (ptr) cptr = new className*();\
-    std::vector<autoSerDeserialiseFunc>::iterator it = deserFuncs.begin();\
-    for(;it != deserFuncs.end(); ++it){\
-      (*it)(c,data,currentPos);\
+    std::vector<autoSerDeserialiseFunc>::iterator it;\
+    for(it = deserFuncs.begin();it != deserFuncs.end();++it){\
+      (*it)(c,data,offset,netMessageIndex);\
     }\
     if (ptr) { \
       *cptr = c; \
@@ -652,20 +641,23 @@ class AutoSerializable : public Serializable {
       return c; \
     }\
   }\
-  int deserialize(const NetMessage &data) {\
-    int currentPos = superclass::deserialize(data); \
-    std::vector<autoSerDeserialiseFunc>::iterator it = deserFuncs.begin();\
-    for(;it != deserFuncs.end(); ++it){\
-      (*it)(this,data,currentPos);\
+  void deserialize(const NetMessage &data, size_t &offset, size_t &netMessageIndex) {\
+    superclass::deserialize(data, offset, netMessageIndex);\
+    std::vector<autoSerDeserialiseFunc>::iterator it;\
+    for(it=deserFuncs.begin();it != deserFuncs.end();++it){\
+      (*it)(this,data,offset,netMessageIndex);\
     }\
-    return currentPos;\
   }\
   virtual NetMessage *serialize() const {\
+    char *data = NULL;\
+    size_t currentPos = 0;\
+    if (sizePrimitiveFields != 0) data = (char*) malloc(sizePrimitiveFields);\
     NetMessage *message = superclass::serialize();\
     std::vector<autoSerSerializeFunc>::iterator it = serFuncs.begin();\
     for(;it != serFuncs.end(); ++it){\
-      message = (*it)((void*)this,classType,message);\
+      message = (*it)((void*)this,classType,message,data,currentPos);\
     }\
+    if (sizePrimitiveFields != 0) message->addDataBlock(data, currentPos, true);\
     return message;\
   }
 
@@ -673,7 +665,7 @@ class AutoSerializable : public Serializable {
 #define AUTO_SER_STATIC_STUFF \
   uint16_t className::type = 0;\
   std::vector<className::autoSerSerializeFunc> className::serFuncs;\
-  std::vector<className::autoSerReturnDataSizeFunc> className::sizeFuncs;\
   std::vector<className::autoSerDeserialiseFunc> className::deserFuncs;\
+  size_t className::sizePrimitiveFields = 0;
 
 #endif

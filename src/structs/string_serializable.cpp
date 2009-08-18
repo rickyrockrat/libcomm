@@ -12,13 +12,16 @@ int String::returnDataSize() const {
 }
 
 NetMessage *String::serialize() const {
-  char *data = (char*) malloc(this->length()*sizeof(char));
-  memcpy(data,this->c_str(),this->length());
-  return new NetMessage(getType(),data,this->length());
+  NetMessage *message = new NetMessage(getType());
+  message->addDataBlock((char*) c_str(), length(), false);
+  return message;
 }
 
 Serializable *String::deserialize(const NetMessage &data, bool ptr) {
-  String *str = new String(data.getData(),data.getDataSize());
+  chariovec *iov = data.getDataBlocks();
+  String *str = new String(iov[0].iov_base,iov[0].iov_len);
+  free(iov[0].iov_base);
+  free(iov);
   if (ptr) {
     String **strPtr = new String*();
     *strPtr = str;
@@ -32,7 +35,7 @@ uint16_t String::getType() const {
   return type; 
 }
 
-String::String() : std::string() {}
+String::String(void) : std::string() {}
 String::String(const std::string &s) : std::string(s) {}
 String::String(size_t length, const char &ch) : std::string(length,ch) {}
 String::String(const char *str) : std::string(str) {}

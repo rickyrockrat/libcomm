@@ -100,7 +100,6 @@ class TestSerClass : public Serializable {
     //Methods and fields needed for serialization
     static uint16_t type;
 
-    int returnDataSize() const;
     NetMessage *serialize() const;
     virtual uint16_t getType() const;
     static Serializable *deserialize(const NetMessage &data, bool ptr);
@@ -150,15 +149,6 @@ TestSerClass::~TestSerClass() {
   delete doubleVect;
 }
 
-int TestSerClass::returnDataSize() const {
-  SerializationManager *sm = SerializationManager::getSerializationManager();
-   
-  int size = sm->getSerializedSize(*str,true);
-  size += sm->getSerializedSize(*vect,true);
-  size += sm->getSerializedSize(*doubleVect,true);
-  return size;
-}
-
 NetMessage *TestSerClass::serialize() const {
   SerializationManager *sm = SerializationManager::getSerializationManager();
   NetMessage *message = new NetMessage(this->getType(),(char*) NULL,0);
@@ -171,16 +161,14 @@ NetMessage *TestSerClass::serialize() const {
 Serializable *TestSerClass::deserialize(const NetMessage &data, bool ptr) {
   SerializationManager *sm = SerializationManager::getSerializationManager();
   TestSerClass *tsc = new TestSerClass(false);
+  const std::vector<NetMessage*> &messages = data.getMessages();
 
-  int currentPos = 0;
-  
-  String *s = (String*) sm->deserialize(data,currentPos,false);
+  int currentPos = -1;
+  String *s = (String*) sm->deserialize(messages[++currentPos],false);
   tsc->str = s;
-  
-  Vector<int> *v = (Vector<int>*) sm->deserialize(data, currentPos, false);
+  Vector<int> *v = (Vector<int>*) sm->deserialize(messages[++currentPos], false);
   tsc->vect = v;
-  
-  Vector<Vector<String> > *db = (Vector<Vector<String> >*) sm->deserialize(data, currentPos, false);
+  Vector<Vector<String> > *db = (Vector<Vector<String> >*) sm->deserialize(messages[++currentPos], false);
   tsc->doubleVect = db;
 
   return tsc;
@@ -918,11 +906,11 @@ void *ReceiverThread::run() {
         << ":" << addr.getPort() << " with tcp" << Logger::endm(this);
 
       for (int i = 0; i<NUMBER_TEST; ++i) {
-        receivedData[i] = socket->receiveObject();
+        receivedData[i] = socket->readObject();
         printTest(testNames[i],comparFuncs[i](receivedData[i],sentData[i]));
       }
-      ssocket.closeSocket();
-      socket->closeSocket();
+      ssocket.closeServer();
+      socket->closeStream();
       delete socket;
     } catch (Exception &e) {
       e.printCodeAndMessage();
@@ -935,11 +923,12 @@ void *ReceiverThread::run() {
     Logger::log(INFO) << "Begin receiving data on " << addr.getAddress() 
       << ":" << addr.getPort() << " with udp" << Logger::endm(this);
     for (int i = 0; i<NUMBER_TEST; ++i) {
-      receivedData[i] = socket.receiveObject(&addrFrom);
+      receivedData[i] = socket.readObject(&addrFrom);
+      std::cout << "Read object " << i << std::endl;
       printTest(testNames[i],comparFuncs[i](receivedData[i],sentData[i]));
     }
     
-    socket.closeSocket();
+    socket.closeStream();
   }
   return NULL;
 }
@@ -953,19 +942,19 @@ void *SenderThread::run() {
     }
     
     try {
-    TcpSocket socket(*address);
+      TcpSocket socket(*address);
 
-    NetAddress addr = socket.getLocalAddress();
-    Logger::log(INFO) << "Begin sending data from " << addr.getAddress() 
-      << ":" << addr.getPort() << " to " << address->getAddress()
-      << ":" << address->getPort() << " with tcp" << Logger::endm(this);
-    
-    
-    for (int i = 0; i<NUMBER_TEST; ++i) {
-      socket.sendObject(*sentData[i]);
-    }
-    
-    socket.closeSocket();
+      NetAddress addr = socket.getLocalAddress();
+      Logger::log(INFO) << "Begin sending data from " << addr.getAddress() 
+        << ":" << addr.getPort() << " to " << address->getAddress()
+        << ":" << address->getPort() << " with tcp" << Logger::endm(this);
+      
+      
+      for (int i = 0; i<NUMBER_TEST; ++i) {
+        socket.writeObject(*sentData[i]);
+      }
+      
+      socket.closeStream();
     } catch (Exception &e) {
       e.printCodeAndMessage();
     }
@@ -976,22 +965,22 @@ void *SenderThread::run() {
     NetAddress forGetPort(ADDRESS,1);
     
     NullPlaceholder nullMessage;
-    socket.sendObject(nullMessage, forGetPort);
+    socket.writeObject(nullMessage, forGetPort);
     
     NetAddress addr = socket.getLocalAddress();
     Logger::log(INFO) << "Begin sending data from " << addr.getAddress() 
       << ":" << addr.getPort() << " to " << defaultAddress.getAddress()
-      << ":" << defaultAddress.getPort() << "with udp" << Logger::endm(this);
+      << ":" << defaultAddress.getPort() << " with udp" << Logger::endm(this);
     
     if (address == NULL) {
       address = &defaultAddress;
     }
     
     for (int i = 0; i<NUMBER_TEST; ++i) {
-      socket.sendObject(*sentData[i], *address);
+      socket.writeObject(*sentData[i], *address);
     }
     
-    socket.closeSocket();
+    socket.closeStream();
   }
     return NULL;
 }
@@ -1239,12 +1228,15 @@ bool compareBufferUint64t(const void* first, const void* second) {
   Buffer<uint64_t> *s = (Buffer<uint64_t>*) second;
   bool returnValue = true;
   if ((first == NULL) || (second == NULL)) {
+    std::cout << "NULL" << std::endl;
     return false;
   } else if (f->size() != s->size()) {
+    std::cout << "not same size" << std::endl;
     return false;
   } else {
     for (size_t i = 0; i<f->size(); ++i) {
       if ((*f)[i] != (*s)[i]) {
+        std::cout << "("<<i<<")"<< (*f)[i] << "!=" << (*s)[i]<< std::endl;
         returnValue = false; 
         break;
       }

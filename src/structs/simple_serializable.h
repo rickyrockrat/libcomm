@@ -13,7 +13,7 @@
 #include "../serializable.h"
 
 #define SIMPLE_SER_STUFF \
-  int returnDataSize() const { \
+  int returnClassSize() const { \
     const className &ref = *this; \
     return sizeof(ref)-sizeof(int); \
   } \
@@ -28,7 +28,7 @@
   friend class libcomm;
 
 #define SIMPLE_SER_INIT \
-  memset((void*)&(((char*)this)[sizeof(int)]),0,(size_t)returnDataSize());
+  memset((void*)&(((char*)this)[sizeof(int)]),0,(size_t)returnClassSize());
 
 #define SIMPLE_SER_STATIC_STUFF \
   uint16_t className::type = 0;
@@ -61,7 +61,7 @@ class SimpleSerializable : public Serializable {
   private :
     static uint16_t type;
     
-    virtual int returnDataSize() const = 0;
+    virtual int returnClassSize(void) const = 0;
     NetMessage *serialize() const;
     virtual uint16_t getType() const = 0;
     static Serializable *deserialize(const NetMessage &data, bool ptr);        
