@@ -13,6 +13,7 @@
 #define EX_STREAM_CLOSED -3
 #define EX_EOF -4
 #define EX_OSTREAM_TOO_MUCH_DATA -5
+#define EX_ISTREAM_VIRTUAL_CALL -6
 
 #include <string>
 

@@ -388,7 +388,6 @@ class AutoSerializable : public Serializable {
 
 #define AUTO_SER_FIELD_SERIALIZE(name) \
    NetMessage *serializeMember##name(NetMessage *m, char *data, size_t &currentPos) { \
-   std::cout << "Serialize object member \"" QUOTEME(name) << "\"" << std::endl;\
     if (m != NULL) { \
       return SerializationManager::getSerializationManager()->\
         serialize(name,m);\
@@ -449,7 +448,6 @@ class AutoSerializable : public Serializable {
     
 #define AUTO_SER_PRIMITIVE_FIELD_SERIALIZE(name) \
   NetMessage *serializeMember##name(NetMessage *m, char *data, size_t &currentPos) { \
-    std::cout << "Serialize primitive member \"" QUOTEME(name) << "\": currentPos:"<< currentPos << std::endl;\
     cvrtochars(name, &(data[currentPos]), currentPos);\
     return m;\
    }
@@ -477,7 +475,6 @@ class AutoSerializable : public Serializable {
   template <typename T> \
   static void deserializeMember##name(T *c,\
     const NetMessage &data, size_t &offset, size_t &netMessageIndex) { \
-    std::cout << "Derialize primitive member \"" QUOTEME(name) << "\"" << std::endl;\
     c->name = (type) AUTO_SER_CONVERT_##type(data.getDataFromBlock(2,offset,sizeof(type)));\
   }\
 
@@ -584,7 +581,6 @@ class AutoSerializable : public Serializable {
 #define AUTO_SER_CLASS_SER_FUNCS \
   protected:\
   static Serializable *deserialize(const NetMessage &data, bool ptr) {\
-    std::cout << "Main deserialize class \"" QUOTEME(className) << "\""<< std::endl;\
     size_t offset = 0;\
     size_t netMessageIndex = 0;\
     className *c = new className();\
@@ -611,7 +607,6 @@ class AutoSerializable : public Serializable {
     char *data = NULL;\
     size_t currentPos = 0;\
     if (sizePrimitiveFields != 0) data = (char*) malloc(sizePrimitiveFields);\
-    std::cout << "Main serialize class \"" QUOTEME(className) << "\" with type " << getType() << std::endl;\
     NetMessage *message = new NetMessage(getType());\
     std::vector<autoSerSerializeFunc>::iterator it = serFuncs.begin();\
     for(;it != serFuncs.end(); ++it){\

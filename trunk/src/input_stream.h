@@ -8,13 +8,13 @@
 #include "structs/buffer_serializable.h"
 
 class NetMessage;
+class InputStreamInterface;
 
 class InputStream: virtual public Stream {
   protected:
     size_t readBufferSize;
 
     InputStream(void);
-
 
     virtual ssize_t readData(   char *buffer, size_t size, int flags,
                                 NetAddress *addr) = 0;
@@ -40,8 +40,12 @@ class InputStream: virtual public Stream {
     Buffer<char> *readBytes2(Buffer<char> *buff, int flags, NetAddress *addr);
     String *readString2(NetAddress *addr);
     Serializable *readObject2(NetAddress *addr);
+
+    friend class InputStreamInterface;
      
   public:
+    
+    virtual ~InputStream(void);
 
     size_t getReadBufferSize(void);
     void setReadBufferSize(size_t bs);
@@ -58,6 +62,22 @@ class InputStream: virtual public Stream {
 
 };
 
+class InputStreamInterface {
+  public:
+    virtual size_t getReadBufferSize(void);
+    virtual void setReadBufferSize(size_t bs);
+
+    virtual Buffer<char> *readBytes(Buffer<char> *buff, int flags = 0);
+    virtual Buffer<char> *readBytes(Buffer<char> *buff, uint64_t nanosec, int flags = 0);
+    virtual Buffer<char> *readBytes(Buffer<char> *buff, time_t sec, long nanosec, int flags = 0);
+    virtual String *readString(void);
+    virtual String *readString(uint64_t nanosec);
+    virtual String *readString(time_t sec, long nanosec);
+    virtual Serializable *readObject(void);
+    virtual Serializable *readObject(uint64_t nanosec);
+    virtual Serializable *readObject(time_t sec, long nanosec);
+};
+
 class BufferedInputStream: public InputStream{
   private:
     char *buf;
@@ -67,7 +87,7 @@ class BufferedInputStream: public InputStream{
 
     ssize_t readData(   char *buffer, size_t size, int flags,
                         NetAddress *addr);
-    ssize_t peekData(   char *buffer, size_t size, int flags,
+    ssize_t peekData(   char *buffer, size_t size,
                         NetAddress *addr);
 
     void fillBuffer(size_t size, int flags, bool netAddress);
@@ -75,7 +95,7 @@ class BufferedInputStream: public InputStream{
 
   protected:
     BufferedInputStream(void);
-    ~BufferedInputStream(void);
+    virtual ~BufferedInputStream(void);
 
     virtual ssize_t readRawData(   char *buffer, size_t size, int flags,
                                    NetAddress *addr) = 0;

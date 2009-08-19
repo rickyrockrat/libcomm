@@ -31,31 +31,6 @@ size_t UdpSocket::getMaximumSize(void) {
   return maxSize;
 }
 
-/*
-ssize_t UdpSocket::readData(  char *buffer, size_t size, int flags,
-                              NetAddress *addr) {
-  struct sockaddr_in clientAddr;
-  socklen_t sizeAddr = sizeof(clientAddr);
-  ssize_t bytesRead;
-
-  if (addr == NULL) {
-    bytesRead = recv(fd, buffer, size, flags);
-  } else {
-    bytesRead = recvfrom(fd, buffer, size, flags, (sockaddr*) &clientAddr, &sizeAddr);
-    std::cout << "Recv " << bytesRead << " bytes" << std::endl;
-  }
- 
-  switch (bytesRead) {
-    case -1:
-      throw InputStream::InputStreamException(errno);
-    case 0:
-      throw InputStream::InputStreamException(EX_STREAM_CLOSED, "Stream has been closed.");
-    default:
-      if (addr != NULL) *addr = NetAddress(clientAddr);
-      return bytesRead;
-  }
-}*/
-
 ssize_t UdpSocket::readRawData(   char *buffer, size_t size, int flags,
                                   NetAddress *addr) {
   struct sockaddr_in clientAddr;
@@ -66,7 +41,6 @@ ssize_t UdpSocket::readRawData(   char *buffer, size_t size, int flags,
     bytesRead = recv(fd, buffer, size, flags);
   } else {
     bytesRead = recvfrom(fd, buffer, size, flags, (sockaddr*) &clientAddr, &sizeAddr);
-    std::cout << "Recv " << bytesRead << " bytes" << std::endl;
   }
  
   switch (bytesRead) {
@@ -80,7 +54,7 @@ ssize_t UdpSocket::readRawData(   char *buffer, size_t size, int flags,
   }
 }
 
-ssize_t UdpSocket::peekData(  char *buffer, size_t size,
+/*ssize_t UdpSocket::peekData(  char *buffer, size_t size,
                               NetAddress *addr) {
   struct sockaddr_in clientAddr;
   socklen_t sizeAddr = sizeof(clientAddr);
@@ -100,7 +74,7 @@ ssize_t UdpSocket::peekData(  char *buffer, size_t size,
       if (addr != NULL) *addr = NetAddress(clientAddr);
       return bytesRead;
   }
-}
+}*/
 
 ssize_t UdpSocket::writeData( const char *data, size_t size, int flags,
                               const NetAddress *addr) {
@@ -170,7 +144,6 @@ ssize_t UdpSocket::writeData( const struct iovec *iov, int iovcnt,
 
     addr->getSockAddr(&clientAddr);
     sizeAddr = sizeof(clientAddr);
-    std::cout << "Address:" << addr->getAddress() << ":" << addr->getPort() << std::endl;
 
     for (int i = 0; i<iovcnt; ++i) {
       quantityWritten = sendto(fd, iov[i].iov_base, iov[i].iov_len, MSG_MORE,

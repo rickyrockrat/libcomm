@@ -9,11 +9,7 @@ class TcpSocket : public IONetSocket {
 
     TcpSocket(int sockedId);
     
-    /*ssize_t readData(   char *buffer, size_t size, int flags,
-                        NetAddress *addr);*/
     ssize_t readRawData(char *buffer, size_t size, int flags,
-                        NetAddress *addr);
-    ssize_t peekData(   char *buffer, size_t size,
                         NetAddress *addr);
     ssize_t writeData(  const char *data, size_t size, int flags,
                         const NetAddress *addr);

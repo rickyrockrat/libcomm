@@ -924,7 +924,6 @@ void *ReceiverThread::run() {
       << ":" << addr.getPort() << " with udp" << Logger::endm(this);
     for (int i = 0; i<NUMBER_TEST; ++i) {
       receivedData[i] = socket.readObject(&addrFrom);
-      std::cout << "Read object " << i << std::endl;
       printTest(testNames[i],comparFuncs[i](receivedData[i],sentData[i]));
     }
     

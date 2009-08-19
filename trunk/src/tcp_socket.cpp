@@ -17,21 +17,6 @@ TcpSocket::TcpSocket(int socketId): IONetSocket() {
   fd = socketId;
 }
 
-/*ssize_t TcpSocket::readData(  char *buffer, size_t size, int flags,
-                              NetAddress *addr) {
-  ssize_t bytesRead;
-  bytesRead = recv(fd, buffer, size, flags);
- 
-  switch (bytesRead) {
-    case -1:
-      throw InputStream::InputStreamException(errno);
-    case 0:
-      throw InputStream::InputStreamException(EX_STREAM_CLOSED, "Stream has been closed.");
-    default:
-      return bytesRead;
-  }
-}*/
-
 ssize_t TcpSocket::readRawData(   char *buffer, size_t size, int flags,
                                   NetAddress *addr) {
   ssize_t bytesRead;
@@ -47,7 +32,7 @@ ssize_t TcpSocket::readRawData(   char *buffer, size_t size, int flags,
   }
 }
 
-ssize_t TcpSocket::peekData(  char *buffer, size_t size,
+/*ssize_t TcpSocket::peekData(  char *buffer, size_t size,
                               NetAddress *addr) {
   ssize_t bytesRead;
   bytesRead = recv(fd, buffer, size, MSG_PEEK);
@@ -60,7 +45,7 @@ ssize_t TcpSocket::peekData(  char *buffer, size_t size,
     default:
       return bytesRead;
   }
-}
+}*/
 
 ssize_t TcpSocket::writeData( const char *data, size_t size, int flags,
                               const NetAddress *addr) {

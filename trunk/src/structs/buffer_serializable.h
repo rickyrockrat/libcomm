@@ -256,7 +256,7 @@ Serializable *Buffer<T>::deserialize(const NetMessage &data, bool ptr) {
   iov = data.getDataBlocks(&iovcnt);
   buffer = new Buffer<T>();
   if (iovcnt == 1) {
-    std::cout << "size:" << iov[0].iov_len / sizeof(T) << std::endl;
+    //std::cout << "size:" << iov[0].iov_len / sizeof(T) << std::endl;
     buffer->set_data((T*) iov[0].iov_base, iov[0].iov_len / sizeof(T));
   }
   free(iov);

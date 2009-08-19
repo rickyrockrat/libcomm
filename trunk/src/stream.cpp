@@ -161,6 +161,9 @@ void Stream::waitForReady2(const std::vector<Stream*> *streams, StreamWFRSet set
   }
 }
 
+Stream::~Stream(void) {
+}
+
 void Stream::closeStream(void) {
   int result;
   
@@ -169,15 +172,6 @@ void Stream::closeStream(void) {
     throw Stream::StreamException(errno); 
   }
 }
-
-/*void Stream::flushStream(void) {
-  int result;
-
-  result = fsync(fd);
-  if (result == -1) {
-    throw Stream::StreamException(errno); 
-  }
-}*/
 
 StreamWFRResult Stream::waitForReady(StreamWFRSet sets) {
   return waitForReady2(sets, NULL);

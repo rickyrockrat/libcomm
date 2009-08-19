@@ -10,6 +10,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_CC
+AC_PROG_INSTALL
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 AC_PROG_LIBTOOL
@@ -49,5 +50,6 @@ AC_CHECK_FUNCS([getcwd gethostbyaddr gethostbyname gethostname gettimeofday mems
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/structs/Makefile])
+AC_CONFIG_FILES([tests/Makefile])
 
 AC_OUTPUT

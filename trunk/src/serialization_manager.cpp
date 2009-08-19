@@ -32,11 +32,8 @@ Serializable *SerializationManager::clone(const Serializable &object) {
   void *copy;
 
   message = object.serialize();
-  //std::cout << "message:" << message << std::endl;
   cloneMessage = new NetMessage(*message);
-  //std::cout << "clone message:" << cloneMessage << std::endl;
   copy = deserialize(*cloneMessage, false);
-  //std::cout << "copy:" << copy << std::endl;
   delete message;
   delete cloneMessage;
 
@@ -56,20 +53,15 @@ void *SerializationManager::deserialize(const NetMessage &message, bool ptr) {
   uint16_t max = NB_PRIMITVE_TYPES;
   uint16_t type = message.getType();
   
-  std::cout << "Search deserialization func: " << type << std::endl;
   if ((type >= min) && (type < max)) {
-    //std::cout << "Primitive type: " << type << std::endl;
     return deserializePrimitive(message);
   } else {
     std::map<uint16_t, DeserializeFunc>::iterator iter = 
       deserializeFuncs.find(type);
     if (iter != deserializeFuncs.end()) {
-      std::cout << "Deserialize function found: " << type << std::endl;
       DeserializeFunc f = iter->second;
-      //std::cout << "Deserialize function found: " << type << std::endl;
       return (void*) f(message, ptr);
     } else {
-      std::cout << "No deserialize function found: " << type << std::endl;
       return (void*) NULL;
     }
   }
@@ -116,7 +108,6 @@ NetMessage *SerializationManager::mergeMessage(NetMessage *message, NetMessage *
 
 NetMessage *SerializationManager::serialize(const Serializable &object,
   NetMessage *message) const {
-  std::cout << "Serialize object" << std::endl;
   NetMessage *newMessage = object.serialize();
   return mergeMessage(message, newMessage);
 }

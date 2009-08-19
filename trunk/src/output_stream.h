@@ -42,9 +42,41 @@ class OutputStream: virtual public Stream {
     ssize_t writeBytes2(const Buffer<char> &data, int flags, const NetAddress *addr);
   
   public:
+    
+    virtual ~OutputStream();
+
     ssize_t writeObject(const Serializable &object);
     ssize_t writeString(const std::string &string);
     ssize_t writeBytes(const Buffer<char> &data, int flags = 0);
+};
+
+class BufferedOutputStream: public OutputStream {
+  private:
+    struct iovec *buffers;
+    int buffersCount;
+    size_t dataSize;
+    NetAddress *lastNetAddress;
+    size_t writeBufferSize;
+
+    void clearBuffers(void);
+    
+    ssize_t writeData(  const char *data, size_t size, int flags,
+                        const NetAddress *addr);
+    ssize_t writeData(  const struct iovec *iov, int iovcnt,
+                        const NetAddress *addr);
+
+  protected:
+     virtual ssize_t writeRawData(  const struct iovec *iov, int iovcnt,
+                                    const NetAddress *addr) = 0;
+
+  public:
+    BufferedOutputStream(void);
+    virtual ~BufferedOutputStream(void);
+    
+    void closeStream(void);
+    ssize_t flushBuffers(void);
+    size_t getWriteBufferSize(void) const;
+    void setWriteBufferSize(size_t bs);
 };
 
 #endif

@@ -7,6 +7,8 @@
 
 InputStream::InputStream(void): readBufferSize(DEFAULT_READ_BUFFER_SIZE) {}
 
+InputStream::~InputStream(void) {};
+
 size_t InputStream::getReadBufferSize(void) {
   return readBufferSize;
 }
@@ -60,12 +62,7 @@ String *InputStream::tryBuildString(const char *data, off_t startCheck, size_t s
   String *returnString = NULL;
 
   if (containsCRLF(data, startCheck, size, index)) {
-    /*std::cout << (void*) data << std::endl;
-    std::cout << data << std::endl;
-    std::cout << *index << std::endl;*/
     returnString = new String(data, *index-2); 
-    /*std::cout << *returnString << std::endl;
-    std::cout << returnString << std::endl;*/
   }
 
   return returnString;
@@ -80,7 +77,6 @@ void InputStream::parseNetMessageContent(NetMessage *netMessage, size_t netMessa
   NetMessage *childNetMessage;
   char *blockData;
 
-  //std::cout << "NetMessage size: " << netMessageSize << std::endl;
   
   while (totalSize < netMessageSize) {
     childNetMessage = parseBlockHeader(netMessage, &blockSize, &headerSize, &toFree);
@@ -92,7 +88,6 @@ void InputStream::parseNetMessageContent(NetMessage *netMessage, size_t netMessa
       }
     } else {
       // BlockData
-    //  std::cout << "Block data!" << std::endl;
       blockData = readDataForced(blockSize, NULL);
       netMessage->addDataBlock(blockData, blockSize,toFree, false);
     }
@@ -116,11 +111,9 @@ NetMessage *InputStream::parseBlockHeader(NetMessage *netMessage, size_t *blockS
     readDataForced(buff, nextSize, NULL); 
     if (newNetMessage == NULL) {
       //Block
-      //std::cout << "flags:Block data!" << std::endl;
       netMessage->parseTypeSize(buff, false, nextSize, blockSize);
     } else {
       //NetMessage
-      //std::cout << "flags:NetMessage!" << std::endl;
       newNetMessage->parseTypeSize(buff, true, nextSize, blockSize);
     }
   } catch (Exception &e) {
@@ -290,12 +283,49 @@ InputStream::InputStreamException::InputStreamException(int code, std::string me
   : Exception(code, message) {}
 
 
+
+
 BufferedInputStream::BufferedInputStream(void) : buf(NULL), bufferSize(0),
   offset(0) {}
 
 BufferedInputStream::~BufferedInputStream(void) {
   if (buf != NULL) free(buf);
 }
+
+size_t InputStreamInterface::getReadBufferSize(void) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::getReadBufferSize shall not be called directly");}
+void InputStreamInterface::setReadBufferSize(size_t bs) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::setReadBufferSize shall not be called directly");}
+Buffer<char> *InputStreamInterface::readBytes(Buffer<char> *buff, int flags) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readBytes shall not be called directly");}
+Buffer<char> *InputStreamInterface::readBytes(Buffer<char> *buff, uint64_t nanosec, int flags) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readBytes shall not be called directly");}
+Buffer<char> *InputStreamInterface::readBytes(Buffer<char> *buff, time_t sec, long nanosec, int flags) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readBytes shall not be called directly");}
+String *InputStreamInterface::readString(void) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readString shall not be called directly");}
+String *InputStreamInterface::readString(uint64_t nanosec) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readString shall not be called directly");}
+String *InputStreamInterface::readString(time_t sec, long nanosec) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readString shall not be called directly");}
+Serializable *InputStreamInterface::readObject(void) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readObject shall not be called directly");}
+Serializable *InputStreamInterface::readObject(uint64_t nanosec) {
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readObject shall not be called directly");}
+Serializable *InputStreamInterface::readObject(time_t sec, long nanosec){
+  throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
+    "InputStreamInterface::readObject shall not be called directly");}
+
 
 void BufferedInputStream::fillBuffer(size_t size, int flags, bool netAddress) {
   ssize_t readBytes;
@@ -344,11 +374,10 @@ ssize_t BufferedInputStream::readData(  char *buffer, size_t size, int flags,
 }
 
 
-ssize_t BufferedInputStream::peekData(  char *buffer, size_t size, int flags,
-                                        NetAddress *addr) {
+ssize_t BufferedInputStream::peekData(  char *buffer, size_t size, NetAddress *addr) {
   size_t sizeToCopy;
 
-  if ((bufferSize - offset) < size) fillBuffer((size-(bufferSize-offset)),flags, (addr != NULL));
+  if ((bufferSize - offset) < size) fillBuffer((size-(bufferSize-offset)), 0, (addr != NULL));
   sizeToCopy = ((bufferSize - offset) < size) ? (bufferSize - offset) : size;
 
   memcpy(buffer, &(buf[offset]), sizeToCopy);

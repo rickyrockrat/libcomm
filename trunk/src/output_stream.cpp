@@ -3,6 +3,10 @@
 #include "net_message.h"
 #include "serialization_manager.h"
 
+#define DEFAULT_WRITE_BUFFER_SIZE 4096
+
+OutputStream::~OutputStream(void) {
+}
 
 char *OutputStream::generateRemainingData(  const struct iovec *iov, int iovcnt,
                               size_t totalWritten, size_t *toWrite) {
@@ -108,4 +112,93 @@ ssize_t OutputStream::OutputStreamException::getSizeWritten(void) {
 
 const char *OutputStream::OutputStreamException::getNonWrittenData(void) {
   return data;
+}
+
+BufferedOutputStream::BufferedOutputStream(void): buffers(NULL), buffersCount(0),
+  dataSize(0), lastNetAddress(NULL), writeBufferSize(DEFAULT_WRITE_BUFFER_SIZE) {
+}
+
+BufferedOutputStream::~BufferedOutputStream(void) {
+  clearBuffers();
+}
+
+void BufferedOutputStream::closeStream(void) {
+  flushBuffers();
+}
+
+void BufferedOutputStream::clearBuffers(void) {
+  if (buffers != NULL) {
+    for (int i = 0; i<buffersCount; ++i) {
+      free(buffers[i].iov_base);
+    }
+    free(buffers);
+
+    buffers = NULL;
+    dataSize = 0;
+    buffersCount = 0;
+  }
+
+  if (lastNetAddress != NULL) {
+    delete lastNetAddress;
+    lastNetAddress = NULL;
+  }
+}
+
+ssize_t BufferedOutputStream::writeData(  const char *data, size_t size, int flags,
+                                          const NetAddress *addr) {
+  ++buffersCount;
+  dataSize += size;
+  buffers = (struct iovec*) realloc(buffers, buffersCount*sizeof(struct iovec));
+  buffers[buffersCount-1].iov_base = malloc(size);
+  memcpy(buffers[buffersCount-1].iov_base, data, size);
+  buffers[buffersCount-1].iov_len = size;
+
+  if (addr != NULL) {
+    if (lastNetAddress != NULL) delete lastNetAddress;
+    lastNetAddress = new NetAddress(*addr);
+  }
+
+  if (dataSize > writeBufferSize) {
+    flushBuffers();
+  }
+}
+
+ssize_t BufferedOutputStream::writeData(  const struct iovec *iov, int iovCount,
+                    const NetAddress *addr) {
+  int oldBuffersCount = buffersCount;
+
+  buffersCount += iovCount;
+  buffers = (struct iovec*) realloc(buffers, iovCount*sizeof(struct iovec));
+  
+  for(int i = 0; i<iovCount; ++i) {
+    struct iovec &ciov = buffers[oldBuffersCount+i];
+    ciov.iov_base = malloc(iov[i].iov_len);
+    memcpy(ciov.iov_base, iov[i].iov_base, iov[i].iov_len);
+    ciov.iov_len = iov[i].iov_len;
+    dataSize += ciov.iov_len;
+  }
+
+  if (addr != NULL) {
+    if (lastNetAddress != NULL) delete lastNetAddress;
+    lastNetAddress = new NetAddress(*addr);
+  }
+
+  if (dataSize > writeBufferSize) {
+    flushBuffers();
+  }
+}
+
+ssize_t BufferedOutputStream::flushBuffers(void) {
+  ssize_t dataWritten = writeRawData(buffers, buffersCount,
+    lastNetAddress);
+  clearBuffers();
+  return dataWritten;
+}
+
+size_t BufferedOutputStream::getWriteBufferSize(void) const {
+  return writeBufferSize;
+}
+
+void BufferedOutputStream::setWriteBufferSize(size_t bs) {
+  writeBufferSize = bs;
 }

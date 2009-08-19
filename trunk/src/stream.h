@@ -36,7 +36,8 @@ class Stream {
 
     friend class StreamWFRResult;
   public:
-
+    
+    virtual ~Stream(void);
     virtual void closeStream(void);
     
     StreamWFRResult waitForReady(StreamWFRSet sets);

@@ -5,44 +5,6 @@
 
 const int MAX_IOV = sysconf(_SC_IOV_MAX);
 
-ssize_t File::writeData(  const char *data, size_t size, int flags,
-                          const NetAddress *addr){
-  ssize_t bytesWritten;
-  bytesWritten = write(fd, data, size);
-
-  if (bytesWritten == -1) {
-    throw OutputStream::OutputStreamException(errno, size);
-  }
-
-  return bytesWritten;
-}
-
-ssize_t File::writeData(  const struct iovec *iov, int iovcnt,
-                          const NetAddress *addr) {
-  int currentIovCnt;
-  int totalIovCnt = 0;
-  size_t totalQuantityWritten = 0;
-  ssize_t quantityWritten = 0;
-
-  while (totalIovCnt < iovcnt) {
-    currentIovCnt = iovcnt - totalIovCnt;
-    if (currentIovCnt > MAX_IOV) currentIovCnt = MAX_IOV;
-
-    quantityWritten = writev(fd, &(iov[totalIovCnt]), currentIovCnt);
-    if (quantityWritten == -1) {
-      size_t toWrite;
-      char *dataLeft;
-      
-      dataLeft = generateRemainingData(iov,iovcnt, totalQuantityWritten, &toWrite);
-      throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft, quantityWritten);
-    }
-    totalQuantityWritten += quantityWritten;
-    totalIovCnt += currentIovCnt;
-  }
-  
-  return totalQuantityWritten;
-}
-
 void File::openFile(const char *path, int access, int flags, mode_t mode) {
   fd = open(path, access | flags, mode); 
 
@@ -132,8 +94,62 @@ File::FileException::FileException(int code): Exception(code) {
 File::FileException::FileException(int code, std::string message): Exception(code, message) {
 }
 
-ssize_t RandomFile::readData(   char *buffer, size_t size, int flags,
-                          NetAddress *addr) {
+RandomAccessFile::RandomAccessFile(std::string path): File(path) {
+}
+
+RandomAccessFile::RandomAccessFile(std::string path, int access): File(path, access) {
+}
+
+RandomAccessFile::RandomAccessFile(std::string path, int access, int flags)
+  : File(path, access, flags) {
+}
+
+RandomAccessFile::RandomAccessFile(std::string path, int access, int flags, mode_t mode)
+  : File(path, access, flags, mode) {
+}
+
+ssize_t RandomAccessFile::writeData(  const char *data, size_t size, int flags,
+                                      const NetAddress *addr){
+  ssize_t bytesWritten;
+  bytesWritten = write(fd, data, size);
+
+  if (bytesWritten == -1) {
+    throw OutputStream::OutputStreamException(errno, size);
+  }
+
+  return bytesWritten;
+}
+
+ssize_t RandomAccessFile::writeData(  const struct iovec *iov, int iovcnt,
+                                      const NetAddress *addr) {
+  int currentIovCnt;
+  int totalIovCnt = 0;
+  size_t totalQuantityWritten = 0;
+  ssize_t quantityWritten = 0;
+
+  while (totalIovCnt < iovcnt) {
+    currentIovCnt = iovcnt - totalIovCnt;
+    if (currentIovCnt > MAX_IOV) currentIovCnt = MAX_IOV;
+
+    quantityWritten = writev(fd, &(iov[totalIovCnt]), currentIovCnt);
+    if (quantityWritten == -1) {
+      size_t toWrite;
+      char *dataLeft;
+      
+      dataLeft = generateRemainingData(iov,iovcnt, totalQuantityWritten, &toWrite);
+      throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft, quantityWritten);
+    }
+    totalQuantityWritten += quantityWritten;
+    totalIovCnt += currentIovCnt;
+  }
+  
+  return totalQuantityWritten;
+}
+
+
+
+ssize_t RandomAccessFile::readData(   char *buffer, size_t size, int flags,
+                                      NetAddress *addr) {
   ssize_t bytesRead;
   bytesRead = read(fd, buffer, size);
  
@@ -147,7 +163,7 @@ ssize_t RandomFile::readData(   char *buffer, size_t size, int flags,
   }
 }
 
-ssize_t RandomFile::peekData(   char *buffer, size_t size,
+ssize_t RandomAccessFile::peekData(   char *buffer, size_t size,
                           NetAddress *addr) {
   ssize_t bytesRead;
 
@@ -159,7 +175,7 @@ ssize_t RandomFile::peekData(   char *buffer, size_t size,
 
 
 
-void RandomFile::seekOffset(off_t offset, int from) {
+void RandomAccessFile::seekOffset(off_t offset, int from) {
   off_t result;
   
   if ((offset < 0) && ((from == current) || (from == end))) {
@@ -172,6 +188,46 @@ void RandomFile::seekOffset(off_t offset, int from) {
   if (result == -1) {
     throw File::FileException(errno);
   }
+}
+
+BufferedFile::BufferedFile(std::string path): File(path) {
+}
+
+BufferedFile::BufferedFile(std::string path, int access): File(path, access) {
+}
+
+BufferedFile::BufferedFile(std::string path, int access, int flags)
+  : File(path, access, flags) {
+}
+
+BufferedFile::BufferedFile(std::string path, int access, int flags, mode_t mode)
+  : File(path, access, flags, mode) {
+}
+
+ssize_t BufferedFile::writeRawData(  const struct iovec *iov, int iovcnt,
+                                      const NetAddress *addr) {
+  int currentIovCnt;
+  int totalIovCnt = 0;
+  size_t totalQuantityWritten = 0;
+  ssize_t quantityWritten = 0;
+
+  while (totalIovCnt < iovcnt) {
+    currentIovCnt = iovcnt - totalIovCnt;
+    if (currentIovCnt > MAX_IOV) currentIovCnt = MAX_IOV;
+
+    quantityWritten = writev(fd, &(iov[totalIovCnt]), currentIovCnt);
+    if (quantityWritten == -1) {
+      size_t toWrite;
+      char *dataLeft;
+      
+      dataLeft = generateRemainingData(iov,iovcnt, totalQuantityWritten, &toWrite);
+      throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft, quantityWritten);
+    }
+    totalQuantityWritten += quantityWritten;
+    totalIovCnt += currentIovCnt;
+  }
+  
+  return totalQuantityWritten;
 }
 
 ssize_t BufferedFile::readRawData(   char *buffer, size_t size, int flags,
