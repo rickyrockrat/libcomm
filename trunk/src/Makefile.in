@@ -43,8 +43,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src
-DIST_COMMON = $(libcomm_la_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(libcomm_la_HEADERS) $(libcomm_structs_la_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -61,7 +61,8 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libcomm_ladir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libcomm_ladir)" \
+	"$(DESTDIR)$(libcomm_structs_ladir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libcomm_la_LIBADD =
@@ -70,7 +71,11 @@ am_libcomm_la_OBJECTS = exception.lo types_utils.lo serializable.lo \
 	udp_socket.lo file.lo stream.lo input_stream.lo \
 	output_stream.lo serialization_manager.lo thread.lo mutex.lo \
 	condition.lo timer.lo logger.lo participant.lo \
-	config_loader.lo libcomm_structs.lo libcomm.lo
+	config_loader.lo libcomm_structs.lo libcomm.lo \
+	string_serializable.lo vector_serializable.lo \
+	buffer_serializable.lo map_serializable.lo \
+	simple_serializable.lo auto_serializable.lo \
+	null_placeholder.lo
 libcomm_la_OBJECTS = $(am_libcomm_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -94,7 +99,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
 libcomm_laHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(libcomm_la_HEADERS)
+libcomm_structs_laHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(libcomm_la_HEADERS) $(libcomm_structs_la_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -223,6 +229,7 @@ lib_LTLIBRARIES = libcomm.la
 
 # where to install the headers on the system
 libcomm_ladir = $(includedir)/libcomm
+libcomm_structs_ladir = $(includedir)/libcomm/structs
 
 # the list of header files that belong to the library (to be installed later)
 libcomm_la_HEADERS = \
@@ -249,10 +256,20 @@ libcomm_la_HEADERS = \
                        libcomm_structs.h \
                        libcomm.h
 
+libcomm_structs_la_HEADERS = \
+                       structs/string_serializable.h \
+                       structs/vector_serializable.h \
+                       structs/buffer_serializable.h\
+                       structs/map_serializable.h \
+                       structs/simple_serializable.h \
+                       structs/auto_serializable.h \
+                       structs/null_placeholder.h
+
 
 # the sources to add to the library and to add to the source distribution
 libcomm_la_SOURCES = \
                       $(libcomm_a_HEADERS) \
+                      $(libcomm_structs_a_HEADERS) \
                       exception.cpp \
                       types_utils.cpp \
                       serializable.cpp \
@@ -274,7 +291,14 @@ libcomm_la_SOURCES = \
                       participant.cpp \
                       config_loader.cpp \
                       libcomm_structs.cpp \
-                      libcomm.cpp
+                      libcomm.cpp \
+                      structs/string_serializable.cpp \
+                      structs/vector_serializable.cpp \
+                      structs/buffer_serializable.cpp\
+                      structs/map_serializable.cpp \
+                      structs/simple_serializable.cpp \
+                      structs/auto_serializable.cpp \
+                      structs/null_placeholder.cpp
 
 all: all-recursive
 
@@ -345,6 +369,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/auto_serializable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/condition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config_loader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exception.Plo@am__quote@
@@ -353,20 +379,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcomm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcomm_structs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mutex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net_address.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net_message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net_socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/null_placeholder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output_stream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/participant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/serialization_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tcp_socket.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/udp_socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector_serializable.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -389,6 +420,55 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
+string_serializable.lo: structs/string_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT string_serializable.lo -MD -MP -MF $(DEPDIR)/string_serializable.Tpo -c -o string_serializable.lo `test -f 'structs/string_serializable.cpp' || echo '$(srcdir)/'`structs/string_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/string_serializable.Tpo $(DEPDIR)/string_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/string_serializable.cpp' object='string_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o string_serializable.lo `test -f 'structs/string_serializable.cpp' || echo '$(srcdir)/'`structs/string_serializable.cpp
+
+vector_serializable.lo: structs/vector_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vector_serializable.lo -MD -MP -MF $(DEPDIR)/vector_serializable.Tpo -c -o vector_serializable.lo `test -f 'structs/vector_serializable.cpp' || echo '$(srcdir)/'`structs/vector_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vector_serializable.Tpo $(DEPDIR)/vector_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/vector_serializable.cpp' object='vector_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vector_serializable.lo `test -f 'structs/vector_serializable.cpp' || echo '$(srcdir)/'`structs/vector_serializable.cpp
+
+buffer_serializable.lo: structs/buffer_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT buffer_serializable.lo -MD -MP -MF $(DEPDIR)/buffer_serializable.Tpo -c -o buffer_serializable.lo `test -f 'structs/buffer_serializable.cpp' || echo '$(srcdir)/'`structs/buffer_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/buffer_serializable.Tpo $(DEPDIR)/buffer_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/buffer_serializable.cpp' object='buffer_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o buffer_serializable.lo `test -f 'structs/buffer_serializable.cpp' || echo '$(srcdir)/'`structs/buffer_serializable.cpp
+
+map_serializable.lo: structs/map_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT map_serializable.lo -MD -MP -MF $(DEPDIR)/map_serializable.Tpo -c -o map_serializable.lo `test -f 'structs/map_serializable.cpp' || echo '$(srcdir)/'`structs/map_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/map_serializable.Tpo $(DEPDIR)/map_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/map_serializable.cpp' object='map_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o map_serializable.lo `test -f 'structs/map_serializable.cpp' || echo '$(srcdir)/'`structs/map_serializable.cpp
+
+simple_serializable.lo: structs/simple_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT simple_serializable.lo -MD -MP -MF $(DEPDIR)/simple_serializable.Tpo -c -o simple_serializable.lo `test -f 'structs/simple_serializable.cpp' || echo '$(srcdir)/'`structs/simple_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/simple_serializable.Tpo $(DEPDIR)/simple_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/simple_serializable.cpp' object='simple_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o simple_serializable.lo `test -f 'structs/simple_serializable.cpp' || echo '$(srcdir)/'`structs/simple_serializable.cpp
+
+auto_serializable.lo: structs/auto_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT auto_serializable.lo -MD -MP -MF $(DEPDIR)/auto_serializable.Tpo -c -o auto_serializable.lo `test -f 'structs/auto_serializable.cpp' || echo '$(srcdir)/'`structs/auto_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/auto_serializable.Tpo $(DEPDIR)/auto_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/auto_serializable.cpp' object='auto_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o auto_serializable.lo `test -f 'structs/auto_serializable.cpp' || echo '$(srcdir)/'`structs/auto_serializable.cpp
+
+null_placeholder.lo: structs/null_placeholder.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT null_placeholder.lo -MD -MP -MF $(DEPDIR)/null_placeholder.Tpo -c -o null_placeholder.lo `test -f 'structs/null_placeholder.cpp' || echo '$(srcdir)/'`structs/null_placeholder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/null_placeholder.Tpo $(DEPDIR)/null_placeholder.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/null_placeholder.cpp' object='null_placeholder.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o null_placeholder.lo `test -f 'structs/null_placeholder.cpp' || echo '$(srcdir)/'`structs/null_placeholder.cpp
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -410,6 +490,23 @@ uninstall-libcomm_laHEADERS:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(libcomm_ladir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(libcomm_ladir)/$$f"; \
+	done
+install-libcomm_structs_laHEADERS: $(libcomm_structs_la_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(libcomm_structs_ladir)" || $(MKDIR_P) "$(DESTDIR)$(libcomm_structs_ladir)"
+	@list='$(libcomm_structs_la_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(libcomm_structs_laHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(libcomm_structs_ladir)/$$f'"; \
+	  $(libcomm_structs_laHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(libcomm_structs_ladir)/$$f"; \
+	done
+
+uninstall-libcomm_structs_laHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libcomm_structs_la_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(libcomm_structs_ladir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(libcomm_structs_ladir)/$$f"; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -590,7 +687,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libcomm_ladir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libcomm_ladir)" "$(DESTDIR)$(libcomm_structs_ladir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -638,7 +735,8 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libcomm_laHEADERS
+install-data-am: install-libcomm_laHEADERS \
+	install-libcomm_structs_laHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -674,7 +772,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS
+uninstall-am: uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS \
+	uninstall-libcomm_structs_laHEADERS
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -688,13 +787,15 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-libLTLIBRARIES \
-	install-libcomm_laHEADERS install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS
+	install-libcomm_laHEADERS install-libcomm_structs_laHEADERS \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS \
+	uninstall-libcomm_structs_laHEADERS
 
 
 ###############################################################################
