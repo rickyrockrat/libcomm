@@ -1,23 +1,11 @@
-# this is example-file: src/mylib/Makefile.am
-
-# additional include paths necessary to compile the C++ library
-#AM_CXXFLAGS = -I$(top_srcdir)/src @AM_CXXFLAGS@
-
-###############################################################################
-# THE LIBRARIES TO BUILD
-###############################################################################
-
 SUBDIRS = structs
 
-# the library names to build (note we are building static libs only)
 lib_LTLIBRARIES = libcomm.la
 
-# where to install the headers on the system
 libcomm_ladir = $(includedir)/libcomm
 
 libcomm_structs_ladir = $(includedir)/libcomm/structs
 
-# the list of header files that belong to the library (to be installed later)
 libcomm_la_HEADERS =    \
                        exception.h \
                        types_utils.h \
@@ -53,7 +41,6 @@ libcomm_structs_la_HEADERS =    \
                        structs/auto_serializable.h \
                        structs/null_placeholder.h
 
-# the sources to add to the library and to add to the source distribution
 libcomm_la_SOURCES =   \
                       $(libcomm_a_HEADERS) \
                       $(libcomm_structs_a_HEADERS) \
@@ -86,6 +73,3 @@ libcomm_la_SOURCES =   \
                       structs/simple_serializable.cpp \
                       structs/auto_serializable.cpp \
                       structs/null_placeholder.cpp
-
-###############################################################################
-

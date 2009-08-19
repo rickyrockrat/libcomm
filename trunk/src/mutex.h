@@ -36,7 +36,7 @@ class Mutex {
       int res = pthread_mutex_lock(&m); 
   
       if (res != 0) {
-        launchLockException(res);
+        throw Mutex::MutexException(res);
       }
     }
 
@@ -44,7 +44,7 @@ class Mutex {
       int res = pthread_mutex_trylock(&m); 
 
       if (res != 0) {
-        launchTrylockException(res);
+        throw Mutex::MutexException(res);
       }
     }
 
@@ -52,7 +52,7 @@ class Mutex {
       int res = pthread_mutex_unlock(&m); 
        
       if (res != 0) {
-        launchUnlockException(res);
+        throw Mutex::MutexException(res);
       }
     }
 
@@ -61,6 +61,7 @@ class Mutex {
    class MutexException : public Exception {
 
       public :
+        MutexException(int code);
         MutexException(int code, std::string message);
     };
 };

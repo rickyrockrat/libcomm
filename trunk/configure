@@ -17762,6 +17762,7 @@ main ()
   return 0;
 }
 _ACEOF
+cat conftest.$ac_ext > prout
 rm -f conftest.$ac_objext
 if { (ac_try="$ac_compile"
 case "(($ac_try" in

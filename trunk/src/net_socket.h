@@ -21,12 +21,6 @@ class NetSocket {
 
     virtual int getSocketId(void) const = 0;
 
-    class NetException : public Exception {
-      public :
-        NetException(int code);
-        NetException(int code, std::string message);
-    };
-
     friend class NetAddress;
   public :
     
@@ -97,6 +91,11 @@ class NetSocket {
     void setSocketOption(NetSocket::Option &option);
     void getSocketOption(NetSocket::Option *option);
 
+    class NetException : public Exception {
+      public :
+        NetException(int code);
+        NetException(int code, std::string message);
+    };
 };
 
 class IONetSocket: public NetSocket, public BufferedInputStream, public OutputStream {

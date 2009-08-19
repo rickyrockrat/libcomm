@@ -33,7 +33,6 @@ class Timer {
     bool created;
     bool running;
 
-    void launchGetTimeException(long res);
     void createTimer();
 
     friend class TimerTask;
@@ -62,6 +61,7 @@ class Timer {
     class TimerException : public Exception {
 
       public :
+        TimerException(int code);
         TimerException(int code, std::string message);
     };
 

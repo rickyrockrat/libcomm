@@ -18,6 +18,18 @@ class OutputStream: virtual public Stream {
      
     char *generateRemainingData(  const struct iovec *iov, int iovcnt,
                                   size_t totalWritten, size_t *toWrite);
+    
+    ssize_t writeObject2(const Serializable &object, const NetAddress *addr);
+    ssize_t writeString2(const std::string &string, const NetAddress *addr);
+    ssize_t writeBytes2(const Buffer<char> &data, int flags, const NetAddress *addr);
+  
+  public:
+    
+    virtual ~OutputStream();
+
+    ssize_t writeObject(const Serializable &object);
+    ssize_t writeString(const std::string &string);
+    ssize_t writeBytes(const Buffer<char> &data, int flags = 0);
 
     class OutputStreamException : public Exception {
       private:
@@ -36,18 +48,7 @@ class OutputStream: virtual public Stream {
         ssize_t getSizeWritten(void);
         const char *getNonWrittenData(void);
     };
-    
-    ssize_t writeObject2(const Serializable &object, const NetAddress *addr);
-    ssize_t writeString2(const std::string &string, const NetAddress *addr);
-    ssize_t writeBytes2(const Buffer<char> &data, int flags, const NetAddress *addr);
-  
-  public:
-    
-    virtual ~OutputStream();
 
-    ssize_t writeObject(const Serializable &object);
-    ssize_t writeString(const std::string &string);
-    ssize_t writeBytes(const Buffer<char> &data, int flags = 0);
 };
 
 class BufferedOutputStream: public OutputStream {

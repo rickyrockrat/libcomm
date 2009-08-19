@@ -14,15 +14,6 @@
 
 @SET_MAKE@
 
-# this is example-file: src/bin/Makefile.am
-
-# additional include paths necessary to compile the C++ programs
-#AM_CXXFLAGS = -I$(top_srcdir)/src @AM_CXXFLAGS@
-
-###############################################################################
-# THE PROGRAMS TO BUILD
-###############################################################################
-
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -202,15 +193,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-
-# list of sources for the 'helloWorld' binary
+EXTRA_DIST = myftp.cpp ping.cpp
 libcomm_test_SOURCES = \
                         test_libcomm.cpp \
                         test_libcomm_testautoser.h \
                         test_libcomm_testautoser.cpp
 
-
-# the additional libraries needed to link helloWorld
 libcomm_test_LDADD = $(top_builddir)/src/libcomm.la $(AM_LDFLAGS)
 all: all-am
 
@@ -491,8 +479,6 @@ uninstall-am: uninstall-binPROGRAMS
 	pdf pdf-am ps ps-am tags uninstall uninstall-am \
 	uninstall-binPROGRAMS
 
-
-###############################################################################
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

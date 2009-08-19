@@ -275,3 +275,16 @@ void IONetSocket::connectSocket(const NetAddress &address, time_t sec, long nano
     }
   }
 }
+
+NetAddress IONetSocket::getDistantAddress() const {
+  struct sockaddr_in distAddr;
+  socklen_t size;
+
+  size = sizeof(distAddr);
+  if (getpeername(fd, (sockaddr*) &distAddr, &size) == -1) {
+    throw NetSocket::NetException(errno);
+  }
+
+  return NetAddress(distAddr);
+}
+

@@ -31,12 +31,6 @@ class InputStream: virtual public Stream {
     NetMessage *parseBlockHeader( NetMessage *netMessage, size_t *blockSize,
                                   size_t *headerSize, bool *toFree, NetAddress *addr = NULL);
 
-    class InputStreamException : public Exception {
-      public :
-        InputStreamException(int code);
-        InputStreamException(int code, std::string message);
-    };
-
     Buffer<char> *readBytes2(Buffer<char> *buff, int flags, NetAddress *addr);
     String *readString2(NetAddress *addr);
     Serializable *readObject2(NetAddress *addr);
@@ -59,6 +53,13 @@ class InputStream: virtual public Stream {
     Serializable *readObject(void);
     Serializable *readObject(uint64_t nanosec);
     Serializable *readObject(time_t sec, long nanosec);
+
+    class InputStreamException : public Exception {
+      public :
+        InputStreamException(int code);
+        InputStreamException(int code, std::string message);
+    };
+
 
 };
 

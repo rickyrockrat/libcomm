@@ -52,20 +52,7 @@ void Timer::createTimer() {
   long res = timer_create(CLOCK_REALTIME,&sigEvent,&t);
 
   if (res != 0) {
-    std::string errorMessage = "";
-    switch (res) {
-      case EINVAL :
-        errorMessage += "An invalid which_clock value was specified.";
-        errorMessage += "(Should never happen!)";
-        throw Timer::TimerException(res,errorMessage); 
-      case EAGAIN :
-        errorMessage += "The system could not process the request.";
-        throw Timer::TimerException(res,errorMessage); 
-      case EFAULT :
-        errorMessage += "An invalid timer_event_spec value was specified.";
-        errorMessage += "(Should never happen!)";
-        throw Timer::TimerException(res,errorMessage); 
-    }
+    throw Timer::TimerException(errno);
   }
 
   created = true;
@@ -88,17 +75,7 @@ void Timer::startTimerWithPeriod(time_t secPeriod, long nanosecPeriod,
 
   long res = timer_settime(t,0, &val, NULL);
   if (res != 0) {
-    std::string errorMessage = "";
-    switch (res) {
-      case EINVAL :
-        errorMessage += "An invalid timer_id value was specified.";
-        errorMessage += "(Should never happen!)";
-        throw Timer::TimerException(res,errorMessage); 
-      case EFAULT :
-        errorMessage += "The new_setting valid is invalid.";
-        errorMessage += "(Should never happen!)";
-        throw Timer::TimerException(res,errorMessage); 
-    }
+    throw Timer::TimerException(errno);
   }
 
   running = true;
@@ -128,7 +105,7 @@ void Timer::startTimer() {
 void Timer::doCheckPoint() {
   long res = timer_gettime(t,&checkPoint);
   if (res != 0) {
-    launchGetTimeException(res);
+    throw Timer::TimerException(errno);
   }
 }
 
@@ -136,7 +113,7 @@ void Timer::getTime(time_t &sec, long &nanosec) {
   struct itimerspec valTemp;
   long res = timer_gettime(t,&valTemp);
   if (res != 0) {
-    launchGetTimeException(res);
+    throw Timer::TimerException(errno);
   } else {
     sec = valTemp.it_value.tv_sec;
     nanosec = valTemp.it_value.tv_nsec;
@@ -159,7 +136,7 @@ void Timer::getDiffTime(time_t &sec, long &nanosec, bool fromStart) {
   struct itimerspec valTemp;
   long res = timer_gettime(t,&valTemp);
   if (res != 0) {
-    launchGetTimeException(res);
+    throw Timer::TimerException(errno);
   } else {
     if (valTemp.it_value.tv_nsec > v->it_value.tv_nsec) {
       sec = v->it_value.tv_sec - valTemp.it_value.tv_sec - 1;
@@ -194,23 +171,7 @@ bool Timer::isRunning(void) {
   return running;
 }
 
-void Timer::launchGetTimeException(long res) {
-  std::string errorMessage = "";
-  switch (res) {
-    case EINVAL :
-      errorMessage += "An invalid timer_id value was specified.";
-      errorMessage += "(Should never happen!)";
-      break;
-    case EFAULT :
-      errorMessage += "An invalid address of setting was specified.";
-      errorMessage += "(Should never happen!)";
-      break;
-    default :
-      errorMessage += "Unknown error.";
-      break;
-  }
-  throw Timer::TimerException(res,errorMessage); 
-}
-
 Timer::TimerException::TimerException(int code, std::string message)
   : Exception(code,message) {}
+
+Timer::TimerException::TimerException(int code): Exception(code) {}

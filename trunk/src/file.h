@@ -27,12 +27,6 @@ class File: virtual public Stream {
     File(std::string path, int access, int flags);
     File(std::string path, int access, int flags, mode_t mode);
 
-    class FileException: public Exception {
-      public:
-        FileException(int code);
-        FileException(int code, std::string message);
-    };
-
   public:
     enum access{
       r,
@@ -97,6 +91,12 @@ class File: virtual public Stream {
     
     static bool exists(std::string path);
     static struct stat getStats(std::string path);
+
+    class FileException: public Exception {
+      public:
+        FileException(int code);
+        FileException(int code, std::string message);
+    };
 };
 
 class RandomAccessFile: public File, public InputStream, public OutputStream {

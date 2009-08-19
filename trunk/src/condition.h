@@ -17,10 +17,6 @@ class Condition {
     Mutex *m;
     Condition(Mutex *m);
 
-    void launchWaitException(int res);
-    void launchTimedWaitException(int res);
-    void launchNotifyException(int res);
-
     friend class Mutex;
   public :
     ~Condition();
@@ -29,7 +25,7 @@ class Condition {
       int res = pthread_cond_wait(&c,&(m->m));
 
       if (res != 0) {
-        launchWaitException(res);
+        throw Condition::ConditionException(res);
       }
     }
 
@@ -45,7 +41,7 @@ class Condition {
       int res = pthread_cond_timedwait(&c,&(m->m),&t);
 
       if (res != 0) {
-        launchTimedWaitException(res);
+        throw Condition::ConditionException(res);
       }
     }
 
@@ -59,7 +55,7 @@ class Condition {
       int res = pthread_cond_signal(&c);
 
       if (res != 0) {
-        launchNotifyException(res);
+        throw Condition::ConditionException(res);
       }
     }
 
@@ -67,13 +63,14 @@ class Condition {
       int res = pthread_cond_broadcast(&c);
 
       if (res != 0) {
-        launchNotifyException(res);
+        throw Condition::ConditionException(res);
       }
     }
 
    class ConditionException : public Exception {
 
       public :
+        ConditionException(int code);
         ConditionException(int code, std::string message);
     };
 };

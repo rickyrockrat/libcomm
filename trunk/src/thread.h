@@ -52,6 +52,7 @@ class Thread {
     class ThreadException : public Exception {
 
       public :
+        ThreadException(int code);
         ThreadException(int code, std::string message);
     };
   

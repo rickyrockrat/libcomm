@@ -14,15 +14,6 @@
 
 @SET_MAKE@
 
-# this is example-file: src/mylib/Makefile.am
-
-# additional include paths necessary to compile the C++ library
-#AM_CXXFLAGS = -I$(top_srcdir)/src @AM_CXXFLAGS@
-
-###############################################################################
-# THE LIBRARIES TO BUILD
-###############################################################################
-
 
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
@@ -223,15 +214,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = structs
-
-# the library names to build (note we are building static libs only)
 lib_LTLIBRARIES = libcomm.la
-
-# where to install the headers on the system
 libcomm_ladir = $(includedir)/libcomm
 libcomm_structs_ladir = $(includedir)/libcomm/structs
-
-# the list of header files that belong to the library (to be installed later)
 libcomm_la_HEADERS = \
                        exception.h \
                        types_utils.h \
@@ -265,8 +250,6 @@ libcomm_structs_la_HEADERS = \
                        structs/auto_serializable.h \
                        structs/null_placeholder.h
 
-
-# the sources to add to the library and to add to the source distribution
 libcomm_la_SOURCES = \
                       $(libcomm_a_HEADERS) \
                       $(libcomm_structs_a_HEADERS) \
@@ -797,8 +780,6 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS \
 	uninstall-libLTLIBRARIES uninstall-libcomm_laHEADERS \
 	uninstall-libcomm_structs_laHEADERS
 
-
-###############################################################################
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

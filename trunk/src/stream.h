@@ -27,13 +27,6 @@ class Stream {
     static void waitForReady2(const std::vector<Stream*> *streams, StreamWFRSet sets,
       timespec *timeout, std::vector<StreamWFRResult> *result);
 
-    class StreamException : public Exception {
-        public :
-          StreamException(void);
-          StreamException(int code);
-          StreamException(int code, std::string message);
-    };
-
     friend class StreamWFRResult;
   public:
     
@@ -50,7 +43,13 @@ class Stream {
                               StreamWFRSet sets, std::vector<StreamWFRResult> *result);
     static void waitForReady( const std::vector<Stream*> *streams, time_t sec, long nanosec, 
                               StreamWFRSet sets, std::vector<StreamWFRResult> *result);
- 
+
+    class StreamException : public Exception {
+        public :
+          StreamException(void);
+          StreamException(int code);
+          StreamException(int code, std::string message);
+    };
 };
 
 class StreamWFRResult {
