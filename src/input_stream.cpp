@@ -293,6 +293,10 @@ InputStream::InputStreamException::InputStreamException(int code, std::string me
 BufferedInputStream::BufferedInputStream(void) : buf(NULL), bufferSize(0),
   offset(0) {}
 
+BufferedInputStream::~BufferedInputStream(void) {
+  if (buf != NULL) free(buf);
+}
+
 void BufferedInputStream::fillBuffer(size_t size, int flags, bool netAddress) {
   ssize_t readBytes;
   size_t toAllocateMore = ((size / readBufferSize) 

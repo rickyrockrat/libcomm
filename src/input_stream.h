@@ -75,6 +75,7 @@ class BufferedInputStream: public InputStream{
 
   protected:
     BufferedInputStream(void);
+    ~BufferedInputStream(void);
 
     virtual ssize_t readRawData(   char *buffer, size_t size, int flags,
                                    NetAddress *addr) = 0;
