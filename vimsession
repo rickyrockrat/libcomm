@@ -1,0 +1,1127 @@
+let SessionLoad = 1
+if &cp | set nocp | endif
+let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
+let v:this_session=expand("<sfile>:p")
+silent only
+cd ~/svn/libcomm
+if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
+  let s:wipebuf = bufnr('%')
+endif
+set shortmess=aoO
+badd +263 src/libcomm/net_socket.cpp
+badd +1 src/libcomm/net_socket.h
+badd +1 src/libcomm/stream.cpp
+badd +1 src/libcomm/stream.h
+badd +1 src/libcomm/tcp_socket.cpp
+badd +1 src/libcomm/tcp_socket.h
+badd +1 src/libcomm/udp_socket.cpp
+badd +1 src/libcomm/udp_socket.h
+badd +1 src/libcomm/output_stream.cpp
+badd +1 src/libcomm/output_stream.h
+badd +87 src/libcomm/input_stream.cpp
+badd +1 src/libcomm/input_stream.h
+badd +53 src/libcomm/net_address.h
+badd +19 src/libcomm/net_address.cpp
+badd +1 src/libcomm/types_utils.h
+badd +1 src/libcomm/types_utils.cpp
+badd +1 /usr/include/asm/unistd_32.h
+badd +1 src/libcomm/net_message.cpp
+badd +1 src/libcomm/net_message.h
+badd +1 src/libcomm/structs/buffer_serializable.cpp
+badd +1 src/libcomm/structs/buffer_serializable.h
+badd +1 /usr/include/asm-generic/errno-base.h
+badd +1 /usr/include/asm-generic/errno.h
+badd +1 src/libcomm/exception.cpp
+badd +1 src/libcomm/exception.h
+badd +1 src/libcomm/timer.cpp
+badd +1 src/libcomm/timer.h
+badd +1 src/libcomm/serialization_manager.cpp
+badd +1 src/libcomm/serialization_manager.h
+badd +0 Makefile
+badd +0 src/libcomm/serializable.cpp
+badd +0 src/libcomm/serializable.h
+badd +0 src/libcomm/structs/string_serializable.cpp
+badd +0 src/libcomm/structs/string_serializable.h
+badd +0 src/libcomm/libcomm_structs.h
+badd +0 src/libcomm/libcomm_structs.cpp
+badd +0 src/libcomm/libcomm.cpp
+badd +0 src/libcomm/structs/auto_serializable.h
+badd +0 src/libcomm/structs/auto_serializable.cpp
+badd +0 src/libcomm/config_loader.cpp
+badd +0 src/libcomm/structs/null_placeholder.h
+args src/libcomm/net_socket.cpp src/libcomm/net_socket.h
+set lines=82 columns=260
+edit src/libcomm/net_socket.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+argglobal
+edit src/libcomm/net_socket.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 73 - ((39 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+73
+normal! 0
+wincmd w
+argglobal
+2argu
+edit src/libcomm/net_socket.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 199 - ((67 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+199
+normal! 02l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+tabedit src/libcomm/tcp_socket.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+argglobal
+1argu
+edit src/libcomm/tcp_socket.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 48 - ((47 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+48
+normal! 024l
+wincmd w
+argglobal
+1argu
+edit src/libcomm/tcp_socket.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 76 - ((72 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+76
+normal! 06l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+tabedit src/libcomm/udp_socket.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 128 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 131 + 130) / 260)
+argglobal
+edit src/libcomm/udp_socket.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 20 - ((19 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+20
+normal! 02l
+wincmd w
+argglobal
+edit src/libcomm/udp_socket.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 24 - ((8 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+24
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 128 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 131 + 130) / 260)
+tabedit src/libcomm/stream.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 105 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 154 + 130) / 260)
+argglobal
+edit src/libcomm/stream.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 7 - ((6 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+7
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/stream.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 164 - ((8 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+164
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 105 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 154 + 130) / 260)
+tabedit src/libcomm/output_stream.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+argglobal
+edit src/libcomm/output_stream.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 49 - ((48 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+49
+normal! 05l
+wincmd w
+argglobal
+edit src/libcomm/output_stream.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 7 - ((6 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+7
+normal! 019l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 104 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 155 + 130) / 260)
+tabedit src/libcomm/input_stream.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/input_stream.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 28 - ((27 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+28
+normal! 032l
+wincmd w
+argglobal
+edit src/libcomm/input_stream.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 131 - ((7 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+131
+normal! 036l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/types_utils.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+argglobal
+edit src/libcomm/types_utils.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 4 - ((3 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+4
+normal! 015l
+wincmd w
+argglobal
+edit src/libcomm/types_utils.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 73 - ((72 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+73
+normal! 038l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+tabedit src/libcomm/net_message.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+argglobal
+edit src/libcomm/net_message.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 73 - ((48 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+73
+normal! 05l
+wincmd w
+argglobal
+edit src/libcomm/net_message.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 58 - ((48 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+58
+normal! 04l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+tabedit src/libcomm/net_address.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/net_address.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 117 - ((65 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+117
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/net_address.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 83 - ((55 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+83
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/structs/buffer_serializable.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+argglobal
+edit src/libcomm/structs/buffer_serializable.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 243 - ((57 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+243
+normal! 02l
+wincmd w
+argglobal
+edit src/libcomm/structs/buffer_serializable.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 031l
+wincmd w
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+tabedit src/libcomm/structs/string_serializable.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/structs/string_serializable.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/structs/string_serializable.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 24 - ((23 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+24
+normal! 02l
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/serializable.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/serializable.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 32 - ((31 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+32
+normal! 04l
+wincmd w
+argglobal
+edit src/libcomm/serializable.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 4 - ((3 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+4
+normal! 0
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/exception.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+argglobal
+edit src/libcomm/exception.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 13 - ((12 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+13
+normal! 026l
+wincmd w
+argglobal
+edit src/libcomm/exception.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 9 - ((7 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+9
+normal! 019l
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 116 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 143 + 130) / 260)
+tabedit src/libcomm/libcomm_structs.cpp
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/libcomm_structs.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/libcomm_structs.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 9 - ((8 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+9
+normal! 0
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/config_loader.cpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/libcomm/config_loader.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 21 - ((20 * winheight(0) + 40) / 81)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+21
+normal! 03l
+2wincmd w
+tabedit src/libcomm/structs/null_placeholder.h
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/libcomm/structs/null_placeholder.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 81)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+2wincmd w
+tabedit src/libcomm/libcomm.cpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/libcomm/libcomm.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 74 - ((73 * winheight(0) + 40) / 81)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+74
+normal! 021l
+2wincmd w
+tabedit src/libcomm/timer.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/timer.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/timer.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 12 - ((11 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+12
+normal! 012l
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/structs/auto_serializable.cpp
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 88 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 171 + 130) / 260)
+argglobal
+edit src/libcomm/structs/auto_serializable.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/structs/auto_serializable.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 88 - ((7 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+88
+normal! 024l
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 88 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 171 + 130) / 260)
+tabedit src/libcomm/serialization_manager.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+argglobal
+edit src/libcomm/serialization_manager.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit src/libcomm/serialization_manager.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 37 - ((36 * winheight(0) + 40) / 80)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+37
+normal! 02l
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 130 + 130) / 260)
+exe 'vert 2resize ' . ((&columns * 129 + 130) / 260)
+tabedit src/libcomm/config_loader.cpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit src/libcomm/config_loader.cpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 37 - ((36 * winheight(0) + 40) / 81)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+37
+normal! 03l
+2wincmd w
+tabedit Makefile
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+edit Makefile
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 48 - ((47 * winheight(0) + 40) / 81)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+48
+normal! 0
+2wincmd w
+tabedit /usr/include/asm-generic/errno.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+wincmd _ | wincmd |
+vsplit
+2wincmd h
+wincmd w
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+exe '1resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 1resize ' . ((&columns * 77 + 130) / 260)
+exe '2resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 2resize ' . ((&columns * 104 + 130) / 260)
+exe '3resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 3resize ' . ((&columns * 77 + 130) / 260)
+argglobal
+edit /usr/include/asm-generic/errno.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 28) / 57)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit /usr/include/asm-generic/errno-base.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 28) / 57)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit /usr/include/asm/unistd_32.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 66 - ((0 * winheight(0) + 28) / 57)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+66
+normal! 023l
+wincmd w
+2wincmd w
+exe '1resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 1resize ' . ((&columns * 77 + 130) / 260)
+exe '2resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 2resize ' . ((&columns * 104 + 130) / 260)
+exe '3resize ' . ((&lines * 57 + 41) / 82)
+exe 'vert 3resize ' . ((&columns * 77 + 130) / 260)
+tabnext 11
+if exists('s:wipebuf')
+  silent exe 'bwipe ' . s:wipebuf
+endif
+unlet! s:wipebuf
+set winheight=1 winwidth=20 shortmess=filnxtToO
+let s:sx = expand("<sfile>:p:r")."x.vim"
+if file_readable(s:sx)
+  exe "source " . fnameescape(s:sx)
+endif
+let &so = s:so_save | let &siso = s:siso_save
+doautoall SessionLoadPost
+unlet SessionLoad
+" vim: set ft=vim :
