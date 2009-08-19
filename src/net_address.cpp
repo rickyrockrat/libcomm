@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-//#include "udp_socket.h"
+#include "udp_socket.h"
 NetAddress::NetAddress() : resolved(false) {}
 
 NetAddress::NetAddress(std::string address, int port)
@@ -61,8 +61,7 @@ int NetAddress::getPort() const {
 void NetAddress::getSockAddr(sockaddr_in *saddr) const {
  struct hostent *hp = gethostbyname(address.c_str());
   if (hp == (struct hostent*) NULL) {
-    //TODO: put NetException
-    throw Exception(h_errno);
+    launchNetExceptionForNameResolution(h_errno); 
   }
   memcpy((void*)&(saddr->sin_addr),(void*) hp->h_addr, hp->h_length);
   
@@ -89,7 +88,7 @@ std::string NetAddress::getLocalIp() {
 }
 
 
-/*std::map<std::string,NetAddress> *NetAddress::getInterfaces() {
+std::map<std::string,NetAddress> *NetAddress::getInterfaces() {
   UdpSocket socket;
   
   return socket.getLocalAddresses();
@@ -99,7 +98,7 @@ NetAddress NetAddress::getInterface(const char *interface) {
   UdpSocket socket;
   
   return socket.getLocalAddress(interface);
-}*/
+}
 
 std::string NetAddress::findIp(std::string address) {
   char buff[1024];
@@ -134,3 +133,33 @@ std::string NetAddress::findHostname(std::string address) {
   addr.getSockAddr(&sockAddr);
   return findHostname(sockAddr);
 }
+
+NetAddress::NetException::NetException(int code, std::string message)
+  : Exception(code,message) {}
+
+
+void NetAddress::launchNetExceptionForNameResolution(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case HOST_NOT_FOUND :
+      errorMessage = "The specified host is unknown.";
+      break;
+    case NO_ADDRESS : //NO_DATA too
+      errorMessage = "The requested name is valid but does not have an IP addr";
+      errorMessage = "ess.";
+      break;
+    case NO_RECOVERY :
+      errorMessage = "A non-recoverable name server error occurred.";
+      break;
+    case TRY_AGAIN :
+      errorMessage = "A temporary error occurred on an authoritative name serv";
+      errorMessage += "er. Try again later.";
+      break;
+    default :
+      errorMessage = "Unknown error";
+      break;
+  }
+  throw (NetSocket::NetException(errno,errorMessage));
+}
+
+

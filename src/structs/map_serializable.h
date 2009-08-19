@@ -27,6 +27,7 @@ class Map : public std::map<K,V,C,A>, public Serializable {
     static bool pointerContentKey;
     static bool pointerContentValue;
 
+    int returnDataSize() const;
     NetMessage *serialize() const;
     static Serializable *deserialize(const NetMessage &data, bool ptr);
     virtual uint16_t getType() const;
@@ -59,37 +60,77 @@ template <typename K, typename V, typename C, typename A>
 bool Map<K,V,C,A>::pointerContentValue = false;
 
 template <typename K, typename V, typename C, typename A>
+int Map<K,V,C,A>::returnDataSize() const {
+  //map size 
+  int size = sizeof(uint16_t);
+  SerializationManager *sM = SerializationManager::getSerializationManager();  
+  typename std::map<K,V,C,A>::const_iterator iter = this->begin();
+  for (; iter != this->end(); ++iter) {
+    size += sM->getSerializedSize(iter->first,true);
+    size += sM->getSerializedSize(iter->second,true);
+  }
+  return size;
+}
+
+template <typename K, typename V, typename C, typename A>
 uint16_t Map<K,V,C,A>::getType() const {
   return type;
 }
 
 template <typename K, typename V, typename C, typename A>
 NetMessage *Map<K,V,C,A>::serialize() const {
-  SerializationManager *sM = SerializationManager::getSerializationManager();  
-  NetMessage *message = new NetMessage(this->getType());
+  //map size
 
+  size_t sizeSize = 0;
+  char *c = convertToChars((uint16_t) this->size(), sizeSize);
+
+  NetMessage *udpMessage = new NetMessage(getType(), c, sizeSize);
+  SerializationManager *sM = SerializationManager::getSerializationManager();  
   typename std::map<K,V,C,A>::const_iterator iter = this->begin();
   for (; iter != this->end(); ++iter) {
-    message = sM->serialize(iter->first,message);
-    message = sM->serialize(iter->second,message);
+    if (udpMessage != (NetMessage*) NULL) {
+      sM->serialize(iter->first,udpMessage);
+      sM->serialize(iter->second,udpMessage);
+    } else {
+      break;
+    }
   }
-  return message;
+  return udpMessage;
 }
 
 template <typename K, typename V, typename C, typename A>
 Serializable *Map<K,V,C,A>::deserialize(const NetMessage &data, bool ptr) {
   SerializationManager *sm = SerializationManager::getSerializationManager();
-  const std::vector<NetMessage*> &messages = data.getMessages();
-  size_t mapSize = messages.size() / 2;
   Map<K,V,C,A> *map = new Map<K,V,C,A>();
-
   
-  for (uint16_t i(0); i<mapSize; ++i) {
-    K *k = (K*) sm->deserialize(*(messages[2*i]),pointerContentKey);
-    V *v = (V*) sm->deserialize(*(messages[2*i+1]),pointerContentValue);
-    (*map)[*k] = *v;
-    delete k;
-    delete v;
+  int currentPosition = 0;
+  
+  const char *buff = data.getData();
+  uint16_t vectorSize = convertToUInt16(buff);
+  currentPosition += sizeof(uint16_t);
+
+  try {
+    for (uint16_t i(0); i<vectorSize; ++i) {
+      K *k = (K*) sm->deserialize(data,currentPosition, pointerContentKey);
+      if (k == NULL) {
+        throw Exception(0,"Serialized key received null");
+      }
+      V *v = (V*) sm->deserialize(data,currentPosition, pointerContentValue);
+      if (v == NULL) {
+        if (pointerContentKey) {
+          sm->deleteT(*k);
+        }
+        delete k;
+        throw Exception(1,"Serialized value received null");
+      } else {
+        (*map)[*k] = *v;
+        delete k;
+        delete v;
+      }
+    }
+  } catch (Exception &e) {
+    delete map;
+    throw e;
   }
   if (ptr) {
     Map<K,V,C,A> **mapPtr = new Map<K,V,C,A>*();

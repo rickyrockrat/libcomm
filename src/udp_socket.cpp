@@ -2,7 +2,6 @@
 #include <netdb.h>       // gethostbyname(), htons()
 #include <string.h> 	// memcpy
 #include <stdlib.h> //free
-#include <netinet/in.h>  // sockaddr_in
 #include <arpa/inet.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -12,264 +11,227 @@
 #include "udp_socket.h"
 #include "serialization_manager.h"
 
-#define MAX_UDP_PACKET_SIZE 1500
+
+//TODO Add security when wrong udp packets!
+
+#define bufferSize 65535
 #define NB_USEC_PER_SEC 1000000000
 
-const int MAX_IOV = sysconf(_SC_IOV_MAX);
+UdpSocket::UdpSocket(): NetSocket(SOCK_DGRAM) {}
 
-UdpSocket::UdpSocket(): IONetSocket(SOCK_DGRAM), maxSize(MAX_UDP_PACKET_SIZE) {}
-
-UdpSocket::UdpSocket(int localPort): IONetSocket(SOCK_DGRAM), maxSize(MAX_UDP_PACKET_SIZE) {
+UdpSocket::UdpSocket(int localPort): NetSocket(SOCK_DGRAM) {
   bindSocket(localPort);
 }
 
-void UdpSocket::setMaximumSize(size_t maxSize) {
-  this->maxSize = maxSize;
-}
-
-size_t UdpSocket::getMaximumSize(void) {
-  return maxSize;
-}
-
-/*
-ssize_t UdpSocket::readData(  char *buffer, size_t size, int flags,
-                              NetAddress *addr) {
+void UdpSocket::sendObject(const Serializable &object, 
+  const NetAddress &address) {
   struct sockaddr_in clientAddr;
-  socklen_t sizeAddr = sizeof(clientAddr);
-  ssize_t bytesRead;
+  socklen_t size;
+  SerializationManager *serManager;
+  size_t sizeData = 0;
+  char *data;
+  NetMessage *message = (NetMessage*) NULL;
+  
+  address.getSockAddr(&clientAddr);
+  size = sizeof(clientAddr);
+  
+  serManager = SerializationManager::getSerializationManager();
+  message = serManager->checkAndSerialize(object, NULL);
 
-  if (addr == NULL) {
-    bytesRead = recv(fd, buffer, size, flags);
+  if (message == (NetMessage*) NULL) {
+    std::string errorMessage = "Object size bigger than udp max data size.";
+    delete message;
+    throw (UdpSocket::NetException(EMSGSIZE, errorMessage));
   } else {
-    bytesRead = recvfrom(fd, buffer, size, flags, (sockaddr*) &clientAddr, &sizeAddr);
-    std::cout << "Recv " << bytesRead << " bytes" << std::endl;
+    data = message->getRawData(true,&sizeData);
+    ssize_t sizeSent = sendto(socketId, data, sizeData, 0,
+      (sockaddr*) &clientAddr, size);
+    free(data);
+    delete message;
+  
+    if (sizeSent == -1) {
+      launchNetExceptionForSendReceive(errno);
+    }
   }
- 
-  switch (bytesRead) {
-    case -1:
-      throw InputStream::InputStreamException(errno);
-    case 0:
-      throw InputStream::InputStreamException(EX_STREAM_CLOSED, "Stream has been closed.");
-    default:
-      if (addr != NULL) *addr = NetAddress(clientAddr);
-      return bytesRead;
-  }
-}*/
 
-ssize_t UdpSocket::readRawData(   char *buffer, size_t size, int flags,
-                                  NetAddress *addr) {
+}
+
+Serializable *UdpSocket::receiveObject(NetAddress *address) {
   struct sockaddr_in clientAddr;
-  socklen_t sizeAddr = sizeof(clientAddr);
-  ssize_t bytesRead;
-
-  if (addr == NULL) {
-    bytesRead = recv(fd, buffer, size, flags);
-  } else {
-    bytesRead = recvfrom(fd, buffer, size, flags, (sockaddr*) &clientAddr, &sizeAddr);
-    std::cout << "Recv " << bytesRead << " bytes" << std::endl;
+  socklen_t sizeAddr;
+  char* buff = new char[bufferSize];
+  NetMessage *udpMessage = (NetMessage*) NULL;
+  
+  sizeAddr = sizeof(clientAddr);
+  
+  ssize_t sizeReceived = 
+    recvfrom (socketId, buff, bufferSize, 0, (sockaddr*) &clientAddr, &sizeAddr);
+  
+  if (sizeReceived == -1) {
+    delete [] buff;
+    launchNetExceptionForSendReceive(errno);
   }
- 
-  switch (bytesRead) {
-    case -1:
-      throw InputStream::InputStreamException(errno);
-    case 0:
-      throw InputStream::InputStreamException(EX_STREAM_CLOSED, "Stream has been closed.");
-    default:
-      if (addr != NULL) *addr = NetAddress(clientAddr);
-      return bytesRead;
+  udpMessage = new NetMessage(buff, sizeReceived, NULL, true);
+    
+  if (address != NULL) {
+    *address = NetAddress(clientAddr);
   }
+    
+  SerializationManager *serManager =
+    SerializationManager::getSerializationManager();
+  void *object = serManager->deserialize(*udpMessage, false);
+   
+  delete [] buff;
+  delete udpMessage;
+  return (Serializable*) object;
 }
 
-ssize_t UdpSocket::peekData(  char *buffer, size_t size,
-                              NetAddress *addr) {
+Serializable *UdpSocket::receiveObject(NetAddress *address, uint64_t nanosec) {
+  time_t sec = nanosec / NB_USEC_PER_SEC;
+  long nsec = nanosec % NB_USEC_PER_SEC;
+  return receiveObject(address,sec,nsec);
+}
+
+Serializable *UdpSocket::receiveObject(NetAddress *address, time_t sec,
+  long nanosec) {
+  struct sockaddr_in clientAddr; 
+  socklen_t sizeAddr;
+  char* buff = (char*) NULL;
+  NetMessage *udpMessage = (NetMessage*) NULL;
+  timespec timeout; 
+  fd_set fds;
+
+  sizeAddr = sizeof(clientAddr);
+
+  timeout.tv_sec = sec; 
+  timeout.tv_nsec = nanosec;  
+
+  FD_ZERO(&fds);
+  FD_SET(socketId,&fds);
+
+  int resultSelect = pselect(socketId+1, &fds, NULL, NULL, &timeout,NULL);
+  if (resultSelect == -1) {
+      launchNetExceptionForSelect(errno);
+  } else if (resultSelect == 0) {
+    throw (NetSocket::NetException(SOCKET_TIMEOUT,"Timeout on receive occurs."));
+  } else {
+    buff = new char[bufferSize];
+    ssize_t sizeReceived = 
+      recvfrom (socketId, buff, bufferSize, 0, (sockaddr*) &clientAddr, &sizeAddr);
+  
+    if (sizeReceived == -1) {
+      delete [] buff;
+      launchNetExceptionForSendReceive(errno);
+    }
+
+    try {
+      udpMessage = new NetMessage(buff, sizeReceived, NULL, true);
+    } catch (Exception &e) {
+      delete [] buff;
+      throw e;
+    }
+  }
+    
+  if (address != NULL) {
+    *address = NetAddress(clientAddr);
+  }
+    
+  SerializationManager *serManager =
+    SerializationManager::getSerializationManager();
+  void *object = serManager->deserialize(*udpMessage, false);
+   
+  delete [] buff;
+  delete udpMessage;
+  return (Serializable*) object;
+}
+
+
+Serializable *UdpSocket::receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+  timespec *timeout, UdpSocket **read_from) {
+  
   struct sockaddr_in clientAddr;
-  socklen_t sizeAddr = sizeof(clientAddr);
-  ssize_t bytesRead;
-  if (addr == NULL) {
-    bytesRead = recv(fd, buffer, size, MSG_PEEK);
+  socklen_t sizeAddr;
+  char* buff = new char[bufferSize];
+  NetMessage *udpMessage = (NetMessage*) NULL;
+  std::map<int, UdpSocket*> sockets_map;
+  fd_set fds;
+  size_t i;
+  UdpSocket *socket = NULL;
+  int highestSocketId = 0;
+  
+  sizeAddr = sizeof(clientAddr);
+  
+  FD_ZERO(&fds);
+
+  for (i = 0; i<sockets.size(); ++i) {
+    socket = sockets[i];
+    
+    sockets_map[socket->socketId] = socket;
+    FD_SET(socket->socketId,&fds);
+    if (highestSocketId < socket->socketId) highestSocketId = socket->socketId;
+  }
+
+  int resultSelect = pselect(highestSocketId+1, &fds, NULL, NULL, NULL, NULL);
+  
+  if (resultSelect == -1) {
+    launchNetExceptionForSelect(errno);
+  } else if (resultSelect == 0) {
+      throw (NetSocket::NetException(SOCKET_TIMEOUT,"Timeout on receive occurs."));
   } else {
-    bytesRead = recvfrom(fd, buffer, size, MSG_PEEK, (sockaddr*) &clientAddr, &sizeAddr);
-  }
-
-  switch (bytesRead) {
-    case -1:
-      throw InputStream::InputStreamException(errno);
-    case 0:
-      throw InputStream::InputStreamException(EX_STREAM_CLOSED, "Stream has been closed.");
-    default:
-      if (addr != NULL) *addr = NetAddress(clientAddr);
-      return bytesRead;
-  }
-}
-
-ssize_t UdpSocket::writeData( const char *data, size_t size, int flags,
-                              const NetAddress *addr) {
-  ssize_t bytesWritten;
-
-  if ((maxSize != 0) && (size > maxSize)) {
-    throw OutputStreamException(EX_OSTREAM_TOO_MUCH_DATA, size, 
-      "Too much data to send into a single UDP packet.");
-  }
-
-  if (addr == NULL) {
-    bytesWritten = send(fd, data, size, flags);
-  } else {
-    struct sockaddr_in clientAddr;
-    socklen_t sizeAddr;
-
-    addr->getSockAddr(&clientAddr);
-    sizeAddr = sizeof(clientAddr);
-    bytesWritten = sendto(fd, data, size, flags, (const sockaddr*) &clientAddr, sizeAddr);
-  }
-
-
-  if (bytesWritten == -1) {
-    throw OutputStream::OutputStreamException(errno, size);
-  }
-
-  return bytesWritten;
-}
-ssize_t UdpSocket::writeData( const struct iovec *iov, int iovcnt,
-                              const NetAddress *addr) {
-  int currentIovCnt;
-  size_t totalBytesToWrite = 0;
-  ssize_t quantityWritten = 0;
-  size_t totalQuantityWritten = 0;
-
-  for (int i = 0; i<iovcnt; ++i) {
-    totalBytesToWrite += iov[i].iov_len;
-  }
-
-  if ((maxSize != 0) && (totalBytesToWrite > maxSize)) {
-    throw OutputStreamException(EX_OSTREAM_TOO_MUCH_DATA, totalBytesToWrite,
-      "Too much data to send into a single UDP packet.");
-  }
-
-  if (addr == NULL) {
-    int totalIovCnt = 0;
-
-    while (totalIovCnt < iovcnt) {
-      currentIovCnt = iovcnt - totalIovCnt;
-      if (currentIovCnt > MAX_IOV) currentIovCnt = MAX_IOV;
-
-      quantityWritten = writev(fd, &(iov[totalIovCnt]), currentIovCnt);
-      if (quantityWritten == -1) {
-        size_t toWrite;
-        char *dataLeft;
+    socket = sockets_map[resultSelect];
+    if (socket != NULL) {
+      ssize_t sizeReceived = 
+        recvfrom (socket->socketId, buff, bufferSize, 0, (sockaddr*) &clientAddr, &sizeAddr);
         
-        dataLeft = generateRemainingData(iov,iovcnt, totalQuantityWritten, &toWrite);
-        throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft,
-          quantityWritten);
+      if (sizeReceived == -1) {
+        delete [] buff;
+        launchNetExceptionForSendReceive(errno);
       }
-      totalQuantityWritten += quantityWritten;
-      totalIovCnt += currentIovCnt;
-    }
-  } else {
-    struct sockaddr_in clientAddr;
-    socklen_t sizeAddr;
 
-    addr->getSockAddr(&clientAddr);
-    sizeAddr = sizeof(clientAddr);
-    std::cout << "Address:" << addr->getAddress() << ":" << addr->getPort() << std::endl;
-
-    for (int i = 0; i<iovcnt; ++i) {
-      quantityWritten = sendto(fd, iov[i].iov_base, iov[i].iov_len, MSG_MORE,
-        (const sockaddr*) &clientAddr, sizeAddr);
-
-      if (quantityWritten == -1) {
-        char *dataLeft;
-        size_t toWrite;
-
-        dataLeft = generateRemainingData(iov,iovcnt, totalQuantityWritten, &toWrite);
-        throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft, quantityWritten);
+      try {
+        udpMessage = new NetMessage(buff, sizeReceived, NULL, true);
+      } catch (Exception &e) {
+        delete [] buff;
+        throw e;
       }
-      totalQuantityWritten += quantityWritten;
     }
-
-    quantityWritten = sendto(fd, NULL, 0, 0,
-      (const sockaddr*) &clientAddr, sizeAddr);
   }
 
-  return totalQuantityWritten;
-}
-
-ssize_t UdpSocket::writeObject(const Serializable &object, const NetAddress &addr) {
-  return writeObject2(object, &addr);
-}
-
-ssize_t UdpSocket::writeString(const std::string &string, const NetAddress &addr) {
-  return writeString2(string, &addr);
-}
-
-ssize_t UdpSocket::writeBytes(const Buffer<char> &data, const NetAddress &addr, int flags) {
-  return writeBytes2(data, flags, &addr);
-}
-
-Buffer<char> *UdpSocket::readBytes(Buffer<char> *buff, NetAddress *addr, int flags) {
-  return readBytes2(buff, flags, addr);
-}
-
-Buffer<char> *UdpSocket::readBytes(Buffer<char> *buff, NetAddress *addr, uint64_t nanosec, int flags) {
-  time_t sec;
-  long nsec;
-
-  nanosecToSecNsec(nanosec, &sec, &nsec);
-  return readBytes(buff, addr, sec, nsec, flags);
-}
-
-Buffer<char> *UdpSocket::readBytes(Buffer<char> *buff, NetAddress *addr, time_t sec, long nanosec, int flags) {
-  StreamWFRResult waitResult =
-    waitForReady((StreamWFRSet) (STREAM_WFR_READ | STREAM_WFR_ERROR), sec, nanosec);
-  // timeout || error
-  if ((waitResult.setIsNone()) || (waitResult.setIsError())) {
-    throw waitResult.e;;
-  } else {
-    return readBytes(buff, addr, flags);
+  if (address != NULL) {
+    *address = NetAddress(clientAddr);
   }
+    
+  *read_from = socket;
+
+  SerializationManager *serManager =
+    SerializationManager::getSerializationManager();
+  void *object = serManager->deserialize(*udpMessage, false);
+   
+  delete [] buff;
+  delete udpMessage;
+  return (Serializable*) object;
 }
 
-String *UdpSocket::readString(NetAddress *addr) {
-  return readString2(addr);
+Serializable *UdpSocket::receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+  UdpSocket **read_from) {
+  
+  return receiveObject(address, sockets, (timespec*) NULL, read_from);
 }
 
-String *UdpSocket::readString(NetAddress *addr, uint64_t nanosec) {
-  time_t sec;
-  long nsec;
-
-  nanosecToSecNsec(nanosec, &sec, &nsec);
-  return readString(addr, sec, nsec);
+Serializable *UdpSocket::receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+  uint64_t nanosec, UdpSocket **read_from) {
+  
+  time_t sec = nanosec / NB_USEC_PER_SEC;
+  long nsec = nanosec % NB_USEC_PER_SEC;
+  return receiveObject(address, sockets, sec, nsec, read_from);
 }
 
-String *UdpSocket::readString(NetAddress *addr, time_t sec, long nanosec) {
-  StreamWFRResult waitResult =
-    waitForReady((StreamWFRSet) (STREAM_WFR_READ | STREAM_WFR_ERROR), sec, nanosec);
-  // timeout || error
-  if ((waitResult.setIsNone()) || (waitResult.setIsError())) {
-    throw waitResult.e;;
-  } else {
-    return readString(addr);
-  }
-}
+Serializable *UdpSocket::receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+  time_t sec, long nanosec, UdpSocket **read_from) {
+  
+  timespec timeout; 
 
-Serializable *UdpSocket::readObject(NetAddress *addr) {
-  return readObject2(addr);
-}
-
-Serializable *UdpSocket::readObject(NetAddress *addr, uint64_t nanosec) {
-  time_t sec;
-  long nsec;
-
-  nanosecToSecNsec(nanosec, &sec, &nsec);
-  return readObject(addr, sec, nsec);
-}
-
-Serializable *UdpSocket::readObject(NetAddress *addr, time_t sec, long nanosec) {
-  StreamWFRResult waitResult =
-    waitForReady((StreamWFRSet) (STREAM_WFR_READ | STREAM_WFR_ERROR), sec, nanosec);
-  // timeout || error
-  if ((waitResult.setIsNone()) || (waitResult.setIsError())) {
-    throw waitResult.e;;
-  } else {
-    return readObject(addr);
-  }
+  timeout.tv_sec = sec; 
+  timeout.tv_nsec = nanosec;  
+  return receiveObject(address, sockets, &timeout, read_from);
 }

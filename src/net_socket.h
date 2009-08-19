@@ -7,33 +7,44 @@
 #include "serializable.h"
 #include "net_address.h"
 #include "exception.h"
-#include "input_stream.h"
-#include "output_stream.h"
+
+#define SOCKET_CLOSED -3
+#define SOCKET_TIMEOUT -4
+#define SOCKET_CONNECTION_FAILURE -5
+#define SOCKET_ID_WRONG -6
+#define NB_NSEC_IN_SEC 1000000000
 
 class NetSocket {
   protected :
+    int socketId;
     
-    NetSocket(void);
+    NetSocket();
+    NetSocket(int domain);
     virtual ~NetSocket();
-    
-    int createSocket(int domain);
+    static void launchNetExceptionForSocket(int code);
+    static void launchNetExceptionForSelect(int code);
+    static void launchNetExceptionForSendReceive(int code);
+    static void launchNetExceptionForIoctl(int code);
+    static void launchNetExceptionForGetSockName(int code);
+    static void launchNetExceptionForGetSetSockOpt(int code);
     void bindSocket(int port);
-
-    virtual int getSocketId(void) const = 0;
-
-    class NetException : public Exception {
-      public :
-        NetException(int code);
-        NetException(int code, std::string message);
-    };
+    void computeTimeDiff(time_t secf, long nanosecf, time_t secs, long nanosecs,
+      time_t &secr, long nanosecr);
 
     friend class NetAddress;
+
   public :
-    
+    void closeSocket();
     NetAddress getLocalAddress() const;
     NetAddress getLocalAddress(const char *interface) const;
     std::map<std::string, NetAddress> *getLocalAddresses() const;
     
+    class NetException : public Exception {
+       
+      public :
+        NetException(int code, std::string message);
+    };
+
     class Option {
       public :
         Option(int name, socklen_t len);
@@ -65,8 +76,7 @@ class NetSocket {
           sndBufOpt,
           rcvBufOpt,
           sndLowAtOpt,
-          rcvLowAtOpt,
-          error
+          rcvLowAtOpt
         };
         int getIntegerValue();
         IntegerOption(IntegerOption::Name name, int value);
@@ -99,20 +109,5 @@ class NetSocket {
 
 };
 
-class IONetSocket: public NetSocket, public BufferedInputStream, public OutputStream {
-  protected:
-    int getSocketId(void) const;
-
-  public:
-    IONetSocket(void);
-    IONetSocket(int domain);
-    IONetSocket(int domain, const NetAddress &address);
-
-    void connectSocket(const NetAddress &address);
-    void connectSocket(const NetAddress &address, uint64_t nanosec);
-    void connectSocket(const NetAddress &address, time_t sec, long nanosec);
-
-    NetAddress getDistantAddress() const;
-};
 
 #endif

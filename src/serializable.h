@@ -17,6 +17,9 @@
 class Serializable {
  
   private :
+    bool checkSize(void) const;
+    NetMessage *checkAndSerialize(void) const;
+
     friend class SerializationManager;
   
   protected :
@@ -29,6 +32,12 @@ class Serializable {
     //! when deserializing a NetMessage.
     virtual uint16_t getType(void) const = 0;
     
+    //! \brief Returns the data size
+    //! \return the size
+    //!
+    //! Returns the size needed to serialize the content of the class, in bytes.
+    virtual int returnDataSize(void) const = 0;
+
     //! \brief Serializes the object
     //! \return a pointer to the generated NetMessage
     //!
@@ -52,6 +61,8 @@ class Serializable {
   public :
     //! \brief Serializable destructor
     virtual ~Serializable(void);
+    static const size_t sizeOfDataHeaders;
+    static const size_t sizeOfDataHeadersWithTs;
 
 };
 

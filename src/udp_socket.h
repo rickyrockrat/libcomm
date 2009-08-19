@@ -1,45 +1,37 @@
 #ifndef UDP_SOCKET_H
 #define UDP_SOCKET_H
 
-#include "net_socket.h"
+#include <netinet/in.h>  // sockaddr_in
+#include <string>
 #include <vector>
 
-class UdpSocket: public IONetSocket {
-  private :
-    size_t maxSize;
+#include "serializable.h"
+#include "net_address.h"
+#include "net_socket.h"
+#include "exception.h"
 
+class UdpSocket: public NetSocket {
+  
+  private :
     friend class UdpAddress;
 
-    /*ssize_t readData(   char *buffer, size_t size, int flags,
-                        NetAddress *addr);*/
-    ssize_t readRawData(char *buffer, size_t size, int flags,
-                        NetAddress *addr);
-    ssize_t peekData(   char *buffer, size_t size,
-                        NetAddress *addr);
-    ssize_t writeData(  const char *data, size_t size, int flags,
-                        const NetAddress *addr);
-    ssize_t writeData(  const struct iovec *iov, int iovcnt,
-                        const NetAddress *addr);
+    static Serializable *receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+      timespec *timeout, UdpSocket **read_from);
+
   public :
     UdpSocket();
     UdpSocket(int localPort);
+    void sendObject(const Serializable &object, const NetAddress &address);
+    Serializable *receiveObject(NetAddress *address);
+    Serializable *receiveObject(NetAddress *address, uint64_t nanosec);
+    Serializable *receiveObject(NetAddress *address, time_t sec, long microsec);
+    static Serializable *receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+      UdpSocket **read_from);
+    static Serializable *receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+      uint64_t nanosec, UdpSocket **read_from);
+    static Serializable *receiveObject(NetAddress *address, const std::vector<UdpSocket*> &sockets,
+      time_t sec, long nanosec, UdpSocket **read_from);
 
-    void setMaximumSize(size_t maxSize);
-    size_t getMaximumSize(void);
-
-    ssize_t writeObject(const Serializable &object, const NetAddress &addr);
-    ssize_t writeString(const std::string &string, const NetAddress &addr);
-    ssize_t writeBytes(const Buffer<char> &data, const NetAddress &addr, int flags = 0);
-
-    Buffer<char> *readBytes(Buffer<char> *buff, NetAddress *addr, int flags = 0);
-    Buffer<char> *readBytes(Buffer<char> *buff, NetAddress *addr, uint64_t nanosec, int flags = 0);
-    Buffer<char> *readBytes(Buffer<char> *buff, NetAddress *addr, time_t sec, long nanosec, int flags = 0);
-    String *readString(NetAddress *addr);
-    String *readString(NetAddress *addr, uint64_t nanosec);
-    String *readString(NetAddress *addr, time_t sec, long nanosec);
-    Serializable *readObject(NetAddress *addr);
-    Serializable *readObject(NetAddress *addr, uint64_t nanosec);
-    Serializable *readObject(NetAddress *addr, time_t sec, long nanosec);
 };
 
 #endif

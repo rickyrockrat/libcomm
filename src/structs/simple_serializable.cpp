@@ -7,20 +7,18 @@ SimpleSerializable::SimpleSerializable() {}
 SimpleSerializable::~SimpleSerializable() {}
 
 NetMessage *SimpleSerializable::serialize() const {
-  int size = returnClassSize();
+  int size = returnDataSize();
   char *buff = (char*) malloc(size);
   memcpy((void*) buff, (void*)&(((char*) this)[sizeof(int)]), size);
 
-  NetMessage *message = new NetMessage(getType());
-  message->addDataBlock(buff, size, true);
+  NetMessage *message = new NetMessage(getType(),buff,size);
   return message;
 }
 
 Serializable *SimpleSerializable::deserialize(SimpleSerializable *ss,          
   const NetMessage &data, bool ptr) {
-  chariovec *iov = data.getDataBlocks();
-  memcpy((void*)&(((char*) ss)[sizeof(int)]), (void*) iov[0].iov_base, iov[0].iov_len);
-  free(iov);
+  memcpy((void*)&(((char*) ss)[sizeof(int)]), (void*) data.getData(),
+    data.getDataSize());
   
   if (ptr) {
     void **returnPtr = new void*();

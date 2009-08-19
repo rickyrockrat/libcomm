@@ -7,29 +7,63 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #include <iostream>
 
 #include "udp_socket.h"
 #include "serialization_manager.h"
-#include "types_utils.h"
 
 
-NetSocket::NetSocket(void) {}
+//TODO Add security when wrong udp packets!
+
+#define bufferSize 1500
+#define NB_USEC_PER_SEC 1000000000
+
+NetSocket::NetSocket() {
+}
+
+NetSocket::NetSocket(int domaine) {
+  socketId = socket (AF_INET, domaine, 0) ;
+  if (socketId == -1) {
+    launchNetExceptionForSocket(errno);
+  }
+}
 
 NetSocket::~NetSocket() {
 }
 
-int NetSocket::createSocket(int domain) {
-  int socketId = socket (AF_INET, domain, 0) ;
-  if (socketId == -1) {
-    throw NetSocket::NetException(errno);
+void NetSocket::launchNetExceptionForSocket(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EACCES : 
+      errorMessage = "Permission for creating this socket denied.";
+      break;
+    case EAFNOSUPPORT :
+      errorMessage = "Address familiy not supported (Should never happen!)";
+      break;
+    case EINVAL :
+      errorMessage = "Unknown protocol or address family (Should never happen)";
+      break;
+    /*case EMFILEA :
+      errorMessage = "File table full.";
+      break;*/
+    case ENFILE :
+      errorMessage = "Maximum number of files opened reached.";
+      break;
+    case ENOBUFS :
+    case ENOMEM :
+      errorMessage = "Insufficient space for allocating buffers.";
+      break;
+    case EPROTONOSUPPORT :
+      errorMessage = "Protocol (type) is not available in this communication d";
+      errorMessage += "omain (Should never happen!).";
+      break;
+    default :
+      errorMessage = "Unknown error";
+      break;
   }
-  return socketId;
+  throw (NetSocket::NetException(errno,errorMessage));
 }
-
 
 void NetSocket::bindSocket(int port) {
   struct sockaddr_in serverAddr;
@@ -38,11 +72,129 @@ void NetSocket::bindSocket(int port) {
   serverAddr.sin_port = htons(port);
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   
-  int status = bind (getSocketId(), (sockaddr*) &serverAddr, sizeof(serverAddr));
+  int status = bind (socketId, (sockaddr*) &serverAddr, sizeof(serverAddr));
   if (status == -1) {
-    throw NetSocket::NetException(errno); 
+    std::string errorMessage;
+    switch (errno) {
+      case EACCES : 
+        errorMessage = "Protected address. Permission denied.";
+        break;
+      case EADDRINUSE :
+        errorMessage = "Address already in use.";
+        break;
+      case EBADF :
+        errorMessage = "socketId not valid. (Should never happen!)";
+        break;
+      case EINVAL :
+        errorMessage = " The socket is already bound to an address.";
+        break;
+      case ENOTSOCK :
+        errorMessage = "socketId is a file descriptor, not a socket descriptor";
+        errorMessage += " (Should never happen!)";
+        break;
+      /*
+      case EADDRNOTAVAIL :
+        errorMessage = "Interface doesn't exist, or non-local address given. ";
+        errorMessage += "(Should never happen!)";
+        break;
+      case EFAULT :
+        errorMessage = "Address pointer non valid.";
+        break;
+      case ELOOP :
+        errorMessage = "Too many symbolic links were encountered in resolving addr.";
+        break;
+      case ENAMETOOLONG :
+        errorMessage = "addr is too long (Should never happen!)";
+        break;
+      case ENOENT :
+        errorMessage = "The file does not exist (Should never happen!).";
+        break;
+      case ENOMEM : 
+        errorMessage = "Insufficient kernel memory was available.";
+        break;
+      case ENOTDIR :
+        errorMessage = "A component of the path prefix is not a directory.";
+        break;
+      case EROFS : 
+        errorMessage = "The socket inode would reside on a read-only file system.";
+        break;
+      */
+    default :
+      errorMessage = "Unknown error";
+      break;
+    }
+    throw (NetSocket::NetException(errno,errorMessage));
   }
 }
+
+
+void NetSocket::computeTimeDiff(time_t secf, long nanosecf, time_t secs, long nanosecs,
+  time_t &secr, long nanosecr) {
+  
+  if ((nanosecs > nanosecf) && (secf > secs)) {
+    secr = secf - secs - 1;
+    nanosecr = nanosecf + (NB_NSEC_IN_SEC - nanosecs);
+  } else if (secf >= secs) {
+    secr = secf - secs;
+    nanosecr = nanosecf - nanosecs;
+  } else {
+    secr = 0;
+    nanosecr = 0;
+  }
+}
+
+void NetSocket::closeSocket() {
+  close(socketId);
+}
+
+void NetSocket::setSocketOption(NetSocket::Option &option) {
+  int result;
+  
+  result = setsockopt(socketId, SOL_SOCKET, option.getName(),
+    option.getValue(), *(option.getSize()));
+
+  if (result == -1) {
+    launchNetExceptionForGetSetSockOpt(errno);
+  }
+}
+
+void NetSocket::getSocketOption(NetSocket::Option *option) {
+  int result;
+
+  result = getsockopt(socketId, SOL_SOCKET, option->getName(),
+    option->getValue(), option->getSize());
+
+  if (result == -1) {
+    launchNetExceptionForGetSetSockOpt(errno);
+  }
+}
+
+void NetSocket::launchNetExceptionForGetSetSockOpt(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EBADF:
+      errorMessage =  "The argument s is not a valid descriptor.";
+      break;
+    case EFAULT:
+      errorMessage =  "The address pointed to by optval is not in a valid par"
+                      "t of the process address space. For getsockopt(), this"
+                      " error may also be returned if optlen is not in a vali"
+                      "d part of the process address space.";
+      break;
+    case EINVAL:
+      errorMessage =  "optlen invalid in setsockopt().";
+      break;
+    case ENOPROTOOPT:
+      errorMessage =  "The option is unknown at the level indicated.";
+      break;
+    case ENOTSOCK:
+      errorMessage =  "The argument s is a file, not a socket.";
+    default :
+      errorMessage =  "Unknown error";
+  }
+  throw (NetSocket::NetException(errno,errorMessage));
+}
+
 
 NetAddress NetSocket::getLocalAddress() const {
   struct sockaddr_in localAddr;
@@ -50,8 +202,8 @@ NetAddress NetSocket::getLocalAddress() const {
   NetAddress address;
   
   size = sizeof(localAddr);
-  if (getsockname(getSocketId(), (sockaddr*) &localAddr, &size) == -1) {
-    throw NetSocket::NetException(errno);
+  if (getsockname(socketId, (sockaddr*) &localAddr, &size) == -1) {
+    launchNetExceptionForGetSockName(errno);
   }
 
   address.setAddress(NetAddress::getLocalIp());
@@ -85,8 +237,8 @@ std::map<std::string,NetAddress> *NetSocket::getLocalAddresses() const {
  
   ifc.ifc_len = sizeof(buf);
   ifc.ifc_buf = buf;
-  if(ioctl(getSocketId(), SIOCGIFCONF, &ifc) == -1){
-    throw NetSocket::NetException(errno);
+  if(ioctl(socketId, SIOCGIFCONF, &ifc) == -1){
+    launchNetExceptionForIoctl(errno);
   }
   
   returnMap = new std::map<std::string, NetAddress>();
@@ -105,8 +257,154 @@ std::map<std::string,NetAddress> *NetSocket::getLocalAddresses() const {
   return returnMap;
 }
 
-NetSocket::NetException::NetException(int code)
-  : Exception(code) {
+void NetSocket::launchNetExceptionForSelect(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EBADF :
+      errorMessage =  "An invalid file descriptor was given in one of the sets"
+                      ".  (Perhaps a file descriptor that was already closed, "
+                      "or one on which an error has occurred.)";
+      break;
+    case EINTR:
+      errorMessage =  "A signal was caught";
+      break;
+    case EINVAL:
+      errorMessage =  "nfds is negative or the value contained within timeout i"
+                      "s invalid.";
+      break;
+    case ENOMEM:
+      errorMessage =  "unable to allocate memory for internal tables.";
+      break;
+    default:
+      errorMessage =  "Unknown error";
+      break;
+  }
+  throw (NetSocket::NetException(errno,errorMessage));
+}
+
+void NetSocket::launchNetExceptionForSendReceive(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EAGAIN :
+      errorMessage = "The socket is marked non-blocking and the receive operat";
+      errorMessage += "ion would block, or a receive timeout had been set and ";
+      errorMessage += "the timeout expired before data was received.";
+      break;
+    case EBADF :
+      errorMessage = "The argument s is an invalid descriptor (Should never ha";
+      errorMessage += "ppen!)";
+      break;
+    case ECONNREFUSED :
+      errorMessage = "A remote host refused to allow the network connection ";
+      errorMessage += "(typically because it is not running the requested serv";
+      errorMessage += "ice).";
+      break;
+    case EFAULT :
+      errorMessage = "The receive buffer pointer(s) point outside the process'";
+      errorMessage += "s address  space (Should never happen!)";
+      break;
+    case EINTR : 
+      errorMessage = "The receive was interrupted by delivery of a signal befo";
+      errorMessage += "re any data were available.";
+      break;
+    case EINVAL : 
+      errorMessage = "Invalid argument passed (Should never happen!)";
+      break;
+    case ENOMEM :
+      errorMessage = "Could not allocate memory for the call.";
+      break;
+    case ENOTCONN :
+      errorMessage = "The socket is associated with a connection-oriented prot";
+      errorMessage += "ocol and has not been connected (Should never happen!).";
+      break;
+    case ENOTSOCK : 
+      errorMessage = "The argument s does not refer to a socket (Should never ";
+      errorMessage += "happen!)";
+      break;
+    case ECONNRESET :
+      errorMessage = "Connection reset by peer.";
+      break;
+    case EDESTADDRREQ :
+      errorMessage = "The socket is not connection-mode, and no peer address i";
+      errorMessage += "s set.";
+      break;
+    case EISCONN :
+      errorMessage = "The connection-mode socket was connected already but a r";
+      errorMessage += "ecipient was specified. (Now either this error is retur";
+      errorMessage += "ned, or the recipient specification is ignored.)";
+      break;
+    case EMSGSIZE :
+      errorMessage = "The socket type requires that message be sent atomically";
+      errorMessage += ", and the size of the message to be sent made this impo";
+      errorMessage += "ssible.";
+      break;
+    case ENOBUFS :
+      errorMessage = "The output queue for a network interface was full.";
+      break;
+    case EOPNOTSUPP :
+      errorMessage = "Some bit in the flags argument is inappropriate for the ";
+      errorMessage += "socket type (Should never happen!);";
+      break;
+    case EPIPE : 
+      errorMessage = "The local end has been shut down on a connection oriente";
+      errorMessage += "d socket. (Should never happen!).";
+      break;
+    default :
+      errorMessage = "Unknown error";
+      break;
+  }
+  throw (NetSocket::NetException(errno,errorMessage));
+}
+
+void NetSocket::launchNetExceptionForIoctl(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EINVAL :
+      errorMessage = "Request or argp is not valid.";
+      break;
+    case EBADF :
+      errorMessage = "d is not a valid descriptor";
+      break;
+    case EFAULT :
+      errorMessage = "argp references an inaccessible memory area.";
+      break;
+    case ENOTTY :
+      errorMessage = "d is not associated with a character special device OR T";
+      errorMessage += "he specified request does not apply to the kind of obje";
+      errorMessage += "ct that the descriptor d references.";
+      break;
+    default :
+      errorMessage = "Unknown error";
+      break;
+  }
+  throw (NetAddress::NetException(errno,errorMessage));
+}
+
+void NetSocket::launchNetExceptionForGetSockName(int code) {
+  std::string errorMessage;
+  switch (code) {
+    case EINVAL :
+      errorMessage = "namelen is invalid (e.g., is negative).";
+      break;
+    case EBADF :
+      errorMessage = "d is not a valid descriptor";
+      break;
+    case EFAULT :
+      errorMessage =  "The name parameter points to memory not in a valid part "
+                      "of the process address space ";
+      break;
+    case ENOBUFS :
+      errorMessage =  "Insufficient resources were available in the system to p"
+                      "erform the operation.";
+      break;
+    case ENOTSOCK :
+      errorMessage =  "The argument s is a file, not a socket.";
+      
+    default :
+      errorMessage = "Unknown error";
+      break;
+  }
+  throw (NetAddress::NetException(errno,errorMessage));
 }
 
 NetSocket::NetException::NetException(int code, std::string message)
@@ -142,7 +440,7 @@ void *NetSocket::IntOption::getValue(void) {
 }
 
 const int NetSocket::IntegerOption::names[] = 
-  {SO_SNDBUF, SO_RCVBUF, SO_SNDLOWAT, SO_RCVLOWAT, SO_ERROR};
+  {SO_SNDBUF, SO_RCVBUF, SO_SNDLOWAT, SO_RCVLOWAT};
 
 NetSocket::IntegerOption::IntegerOption(IntegerOption::Name name, int value)
   : NetSocket::IntOption(names[name], value) {
@@ -175,103 +473,4 @@ NetSocket::BooleanOption::~BooleanOption(void) {
 
 bool NetSocket::BooleanOption::getBooleanValue() {
   return (value != 0);
-}
-
-void NetSocket::setSocketOption(NetSocket::Option &option) {
-  int result;
-
-  result = setsockopt(getSocketId(), SOL_SOCKET, option.getName(),
-      option.getValue(), *(option.getSize()));
-
-  if (result == -1) {
-    throw NetSocket::NetException(errno);
-  }
-}
-
-void NetSocket::getSocketOption(NetSocket::Option *option) {
-  int result;
-
-  result = getsockopt(getSocketId(), SOL_SOCKET, option->getName(),
-      option->getValue(), option->getSize());
-
-  if (result == -1) {
-    throw NetSocket::NetException(errno);
-  }
-}
-
-
-
-int IONetSocket::getSocketId(void) const {
-  return fd;
-}
-
-IONetSocket::IONetSocket(void) {
-}
-
-IONetSocket::IONetSocket(int domain) {
-  fd = createSocket(domain);
-}
-
-IONetSocket::IONetSocket(int domain, const NetAddress &address) {
-  fd = createSocket(domain);
-  connectSocket(address);  
-}
-
-void IONetSocket::connectSocket(const NetAddress &address) {
-  struct sockaddr_in distAddr;
-  int result;
-  
-  address.getSockAddr(&distAddr);
-  result = connect(fd, (sockaddr*)&distAddr, sizeof(distAddr));
-  if (result == -1) {
-    throw NetSocket::NetException(errno); 
-  }
-}
-
-void IONetSocket::connectSocket(const NetAddress &address, uint64_t nanosec) {
-  time_t sec;
-  long nsec;
-
-  nanosecToSecNsec(nanosec, &sec, &nsec);
-  connectSocket(address, sec, nsec);
-}
-
-void IONetSocket::connectSocket(const NetAddress &address, time_t sec, long nanosec) {
-  int result; 
-  long flags;
-  
-  // Set socket in O_NONBLOCK
-  flags = fcntl(fd, F_GETFL, NULL);
-  result = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-  if (result == -1) {
-    throw NetSocket::NetException(errno);
-  }
-
-  try {
-    connectSocket(address);
-  } catch (Exception &e) {
-    if (e.getCode() != EINPROGRESS) {
-      throw e;
-    } else {
-      StreamWFRResult waitResult = waitForReady(STREAM_WFR_WRITE, sec, nanosec);
-      //Timeout or error
-      if ((waitResult.setIsNone()) || (waitResult.setIsError())) {
-        throw waitResult.e;
-      } else {
-        
-        IntegerOption opt(NetSocket::IntegerOption::error);
-        getSocketOption(&opt);
-        
-        // Set socket to initial state
-        result = fcntl(fd, F_SETFL, flags);
-        if (result == -1) {
-          throw NetSocket::NetException(errno);
-        }
-
-        if (opt.getIntegerValue() != 0) {
-          throw NetSocket::NetException(opt.getIntegerValue());
-        }
-      }
-    }
-  }
 }

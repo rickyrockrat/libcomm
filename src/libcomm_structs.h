@@ -4,9 +4,9 @@
 #include "serialization_manager.h"
 #include "structs/vector_serializable.h"
 #include "structs/map_serializable.h"
+#include "structs/string_serializable.h"
 #include "structs/buffer_serializable.h"
 #include "structs/simple_serializable.h"
-#include "structs/string_serializable.h"
 #include "structs/auto_serializable.h"
 #include "structs/null_placeholder.h"
 
@@ -18,7 +18,7 @@ struct strPtrCmp {
 
 class libcomm_structs {
   
-  public :
+  public : 
     template <typename T>
     static void addSupportForVector(MyType<T> type, bool pointer) {
       SerializationManager *serManager = SerializationManager::getSerializationManager(); 

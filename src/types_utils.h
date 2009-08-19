@@ -18,8 +18,6 @@ enum {  NONE,
         NB_PRIMITVE_TYPES
 };
 
-const size_t primitiveSizeArray[] = {0, 1, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8};
-
 union swap_float {
   float f;
   char chars[4];
@@ -65,8 +63,5 @@ uint32_t convertToUInt32(const char* buf);
 uint64_t convertToUInt64(const char* buf);
 float convertToFloat(const char* buf);
 double convertToDouble(const char* buf);
-
-void nanosecToSecNsec(uint64_t nanosec, time_t *sec, long *nsec);
-uint64_t secNsecToNanosec(time_t sec, long nanosec);
 
 #endif
