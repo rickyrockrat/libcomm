@@ -64,11 +64,7 @@ NetMessage *Vector<T,A>::serialize() const{
   NetMessage *message = new NetMessage(this->getType());
   typename std::vector<T,A>::const_iterator iter = this->begin();
   for (;  iter != this->end(); ++iter) {
-    if (message != (NetMessage*) NULL) {
-      message = sM->serialize(*iter, message);
-    } else {
-      break;
-    }
+    message = sM->serialize(*iter, message);
   }
   return message;
 }

@@ -4,6 +4,9 @@
 #include "serialization_manager.h"
 #include "structs/vector_serializable.h"
 #include "structs/map_serializable.h"
+#include "structs/multimap_serializable.h"
+#include "structs/set_serializable.h"
+#include "structs/multiset_serializable.h"
 #include "structs/buffer_serializable.h"
 #include "structs/simple_serializable.h"
 #include "structs/string_serializable.h"
@@ -26,6 +29,20 @@ class libcomm_structs {
       Vector<T>::pointerContent = pointer;
     }
 
+    template <typename T>
+    static void addSupportForSet(MyType<T> type, bool pointer) {
+      SerializationManager *serManager = SerializationManager::getSerializationManager(); 
+      Set<T>::type = serManager->addDeserializationFunc(&Set<T>::deserialize);
+      Set<T>::pointerContent = pointer;
+    }
+
+    template <typename T>
+    static void addSupportForMultiset(MyType<T> type, bool pointer) {
+      SerializationManager *serManager = SerializationManager::getSerializationManager(); 
+      Multiset<T>::type = serManager->addDeserializationFunc(&Multiset<T>::deserialize);
+      Multiset<T>::pointerContent = pointer;
+    }
+
     template <typename K, typename V>
     static void addSupportForMap(MyType<K> type1, MyType<V> type2, bool pointerKey, bool pointerValue) {
       SerializationManager *serManager = SerializationManager::getSerializationManager(); 
@@ -34,6 +51,13 @@ class libcomm_structs {
       Map<K,V>::pointerContentValue = pointerValue;
     }
 
+    template <typename K, typename V>
+    static void addSupportForMultimap(MyType<K> type1, MyType<V> type2, bool pointerKey, bool pointerValue) {
+      SerializationManager *serManager = SerializationManager::getSerializationManager(); 
+      Multimap<K,V>::type = serManager->addDeserializationFunc(&Multimap<K,V>::deserialize);
+      Multimap<K,V>::pointerContentKey = pointerKey;
+      Multimap<K,V>::pointerContentValue = pointerValue;
+    }
 };
 
 #endif

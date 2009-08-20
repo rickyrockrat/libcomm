@@ -61,9 +61,10 @@ am_libcomm_la_OBJECTS = exception.lo types_utils.lo serializable.lo \
 	condition.lo timer.lo logger.lo participant.lo \
 	config_loader.lo libcomm_structs.lo libcomm.lo \
 	string_serializable.lo vector_serializable.lo \
-	buffer_serializable.lo map_serializable.lo \
-	simple_serializable.lo auto_serializable.lo \
-	null_placeholder.lo
+	buffer_serializable.lo set_serializable.lo \
+	multiset_serializable.lo map_serializable.lo \
+	multimap_serializable.lo simple_serializable.lo \
+	auto_serializable.lo null_placeholder.lo
 libcomm_la_OBJECTS = $(am_libcomm_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -242,7 +243,10 @@ libcomm_structs_la_HEADERS = \
                        structs/string_serializable.h \
                        structs/vector_serializable.h \
                        structs/buffer_serializable.h\
+                       structs/set_serializable.h\
+                       structs/multiset_serializable.h\
                        structs/map_serializable.h \
+                       structs/multimap_serializable.h \
                        structs/simple_serializable.h \
                        structs/auto_serializable.h \
                        structs/null_placeholder.h
@@ -275,7 +279,10 @@ libcomm_la_SOURCES = \
                       structs/string_serializable.cpp \
                       structs/vector_serializable.cpp \
                       structs/buffer_serializable.cpp\
+                      structs/set_serializable.cpp \
+                      structs/multiset_serializable.cpp \
                       structs/map_serializable.cpp \
+                      structs/multimap_serializable.cpp \
                       structs/simple_serializable.cpp \
                       structs/auto_serializable.cpp \
                       structs/null_placeholder.cpp
@@ -360,6 +367,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcomm_structs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map_serializable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/multimap_serializable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/multiset_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mutex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net_address.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/net_message.Plo@am__quote@
@@ -369,6 +378,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/participant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/serialization_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/set_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_serializable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_serializable.Plo@am__quote@
@@ -421,12 +431,33 @@ buffer_serializable.lo: structs/buffer_serializable.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o buffer_serializable.lo `test -f 'structs/buffer_serializable.cpp' || echo '$(srcdir)/'`structs/buffer_serializable.cpp
 
+set_serializable.lo: structs/set_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT set_serializable.lo -MD -MP -MF $(DEPDIR)/set_serializable.Tpo -c -o set_serializable.lo `test -f 'structs/set_serializable.cpp' || echo '$(srcdir)/'`structs/set_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/set_serializable.Tpo $(DEPDIR)/set_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/set_serializable.cpp' object='set_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o set_serializable.lo `test -f 'structs/set_serializable.cpp' || echo '$(srcdir)/'`structs/set_serializable.cpp
+
+multiset_serializable.lo: structs/multiset_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT multiset_serializable.lo -MD -MP -MF $(DEPDIR)/multiset_serializable.Tpo -c -o multiset_serializable.lo `test -f 'structs/multiset_serializable.cpp' || echo '$(srcdir)/'`structs/multiset_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/multiset_serializable.Tpo $(DEPDIR)/multiset_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/multiset_serializable.cpp' object='multiset_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o multiset_serializable.lo `test -f 'structs/multiset_serializable.cpp' || echo '$(srcdir)/'`structs/multiset_serializable.cpp
+
 map_serializable.lo: structs/map_serializable.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT map_serializable.lo -MD -MP -MF $(DEPDIR)/map_serializable.Tpo -c -o map_serializable.lo `test -f 'structs/map_serializable.cpp' || echo '$(srcdir)/'`structs/map_serializable.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/map_serializable.Tpo $(DEPDIR)/map_serializable.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/map_serializable.cpp' object='map_serializable.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o map_serializable.lo `test -f 'structs/map_serializable.cpp' || echo '$(srcdir)/'`structs/map_serializable.cpp
+
+multimap_serializable.lo: structs/multimap_serializable.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT multimap_serializable.lo -MD -MP -MF $(DEPDIR)/multimap_serializable.Tpo -c -o multimap_serializable.lo `test -f 'structs/multimap_serializable.cpp' || echo '$(srcdir)/'`structs/multimap_serializable.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/multimap_serializable.Tpo $(DEPDIR)/multimap_serializable.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='structs/multimap_serializable.cpp' object='multimap_serializable.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o multimap_serializable.lo `test -f 'structs/multimap_serializable.cpp' || echo '$(srcdir)/'`structs/multimap_serializable.cpp
 
 simple_serializable.lo: structs/simple_serializable.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT simple_serializable.lo -MD -MP -MF $(DEPDIR)/simple_serializable.Tpo -c -o simple_serializable.lo `test -f 'structs/simple_serializable.cpp' || echo '$(srcdir)/'`structs/simple_serializable.cpp
