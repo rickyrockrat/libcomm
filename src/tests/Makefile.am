@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src
+AM_CXXFLAGS = -I$(top_srcdir)/src @AM_CXXFLAGS@
 
 EXTRA_DIST = myftp.cpp\
              ping.cpp

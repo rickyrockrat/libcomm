@@ -5,8 +5,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "udp_socket.h"
 
-//#include "udp_socket.h"
 NetAddress::NetAddress() : resolved(false) {}
 
 NetAddress::NetAddress(std::string address, int port)
@@ -89,7 +89,7 @@ std::string NetAddress::getLocalIp() {
 }
 
 
-/*std::map<std::string,NetAddress> *NetAddress::getInterfaces() {
+std::map<std::string,NetAddress> *NetAddress::getInterfaces() {
   UdpSocket socket;
   
   return socket.getLocalAddresses();
@@ -99,7 +99,7 @@ NetAddress NetAddress::getInterface(const char *interface) {
   UdpSocket socket;
   
   return socket.getLocalAddress(interface);
-}*/
+}
 
 std::string NetAddress::findIp(std::string address) {
   char buff[1024];
