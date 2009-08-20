@@ -109,8 +109,8 @@ class NetAddress {
     void resolve(void);
     static std::string getLocalHostname(void);
     static std::string getLocalIp(void);
-    /*static std::map<std::string,NetAddress> *getInterfaces(void);
-    static NetAddress getInterface(const char *interface);*/
+    static std::map<std::string,NetAddress> *getInterfaces(void);
+    static NetAddress getInterface(const char *interface);
     static std::string findIp(std::string address);
     static std::string findHostname(std::string address);
     static std::string findHostname(const sockaddr_in &addr);

@@ -1,3 +1,5 @@
+AM_CXXFLAGS = -I$(top_srcdir)/src @AM_CXXFLAGS@
+
 SUBDIRS = structs
 
 lib_LTLIBRARIES = libcomm.la

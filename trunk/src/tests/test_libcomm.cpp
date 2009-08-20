@@ -306,6 +306,7 @@ void fillTestData(  Serializable **sentData,
                     CompareFunc *comparFuncs,
                     std::string *testNames,
                     bool tcp) {
+
   int i = -1;
   
   if (tcp) {

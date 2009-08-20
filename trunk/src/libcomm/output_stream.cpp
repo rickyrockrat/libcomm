@@ -161,11 +161,14 @@ ssize_t BufferedOutputStream::writeData(  const char *data, size_t size, int fla
   if (dataSize > writeBufferSize) {
     flushBuffers();
   }
+
+  return size;
 }
 
 ssize_t BufferedOutputStream::writeData(  const struct iovec *iov, int iovCount,
                     const NetAddress *addr) {
   int oldBuffersCount = buffersCount;
+  size_t totalSize = 0;
 
   buffersCount += iovCount;
   buffers = (struct iovec*) realloc(buffers, iovCount*sizeof(struct iovec));
@@ -176,6 +179,7 @@ ssize_t BufferedOutputStream::writeData(  const struct iovec *iov, int iovCount,
     memcpy(ciov.iov_base, iov[i].iov_base, iov[i].iov_len);
     ciov.iov_len = iov[i].iov_len;
     dataSize += ciov.iov_len;
+    totalSize += ciov.iov_len;
   }
 
   if (addr != NULL) {
@@ -186,6 +190,8 @@ ssize_t BufferedOutputStream::writeData(  const struct iovec *iov, int iovCount,
   if (dataSize > writeBufferSize) {
     flushBuffers();
   }
+
+  return totalSize;
 }
 
 ssize_t BufferedOutputStream::flushBuffers(void) {
