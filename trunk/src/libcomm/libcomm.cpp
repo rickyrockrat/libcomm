@@ -74,6 +74,111 @@ void libcomm::init() {
   Vector<String*>::type = serManager->addDeserializationFunc(
                                       &Vector<String*>::deserialize);
   Vector<String*>::pointerContent = true;
+
+  // Set of chars
+  Set<char>::type = serManager->addDeserializationFunc(
+                                  &Set<char>::deserialize);
+  // Set of float
+  Set<float>::type = serManager->addDeserializationFunc( 
+                                      &Set<float>::deserialize);
+
+  // Set of double
+  Set<double>::type = serManager->addDeserializationFunc(
+                                      &Set<double>::deserialize);
+
+  // Set of int8_t
+  Set<int8_t>::type = serManager->addDeserializationFunc(
+                                      &Set<int8_t>::deserialize);
+  
+  // Set of int16_t
+  Set<int16_t>::type = serManager->addDeserializationFunc(
+                                      &Set<int16_t>::deserialize);
+  
+  // Set of int32_t
+  Set<int32_t>::type = serManager->addDeserializationFunc(
+                                      &Set<int32_t>::deserialize);
+  
+  // Set of int64_t
+  Set<int64_t>::type = serManager->addDeserializationFunc(
+                                      &Set<int64_t>::deserialize);
+  
+  // Set of uint8_t
+  Set<uint8_t>::type = serManager->addDeserializationFunc(
+                                      &Set<uint8_t>::deserialize);
+
+  // Set of uint16_t
+  Set<uint16_t>::type = serManager->addDeserializationFunc(
+                                      &Set<uint16_t>::deserialize);
+  
+  // Set of uint8_t
+  Set<uint32_t>::type = serManager->addDeserializationFunc(
+                                      &Set<uint32_t>::deserialize);
+  
+  // Set of uint8_t
+  Set<uint64_t>::type = serManager->addDeserializationFunc(
+                                      &Set<uint64_t>::deserialize);
+  
+  // Set of strings
+  Set<String>::type = serManager->addDeserializationFunc(
+                                      &Set<String>::deserialize);
+
+  // Set of strings pointer
+  Set<String*>::type = serManager->addDeserializationFunc(
+                                      &Set<String*>::deserialize);
+  Set<String*>::pointerContent = true;
+
+  // Multiset of chars
+  Multiset<char>::type = serManager->addDeserializationFunc(
+                                  &Multiset<char>::deserialize);
+  // Multiset of float
+  Multiset<float>::type = serManager->addDeserializationFunc( 
+                                      &Multiset<float>::deserialize);
+
+  // Multiset of double
+  Multiset<double>::type = serManager->addDeserializationFunc(
+                                      &Multiset<double>::deserialize);
+
+  // Multiset of int8_t
+  Multiset<int8_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<int8_t>::deserialize);
+  
+  // Multiset of int16_t
+  Multiset<int16_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<int16_t>::deserialize);
+  
+  // Multiset of int32_t
+  Multiset<int32_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<int32_t>::deserialize);
+  
+  // Multiset of int64_t
+  Multiset<int64_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<int64_t>::deserialize);
+  
+  // Multiset of uint8_t
+  Multiset<uint8_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<uint8_t>::deserialize);
+
+  // Multiset of uint16_t
+  Multiset<uint16_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<uint16_t>::deserialize);
+  
+  // Multiset of uint8_t
+  Multiset<uint32_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<uint32_t>::deserialize);
+  
+  // Multiset of uint8_t
+  Multiset<uint64_t>::type = serManager->addDeserializationFunc(
+                                      &Multiset<uint64_t>::deserialize);
+  
+  // Multiset of strings
+  Multiset<String>::type = serManager->addDeserializationFunc(
+                                      &Multiset<String>::deserialize);
+
+  // Multiset of strings pointer
+  Multiset<String*>::type = serManager->addDeserializationFunc(
+                                      &Multiset<String*>::deserialize);
+  Multiset<String*>::pointerContent = true;
+
   
   //Buffer of chars
   Buffer<char>::type = serManager->addDeserializationFunc(
@@ -145,7 +250,50 @@ void libcomm::init() {
                                       &Map<String*,String*,strPtrCmp>::deserialize);
   Map<String*,String*,strPtrCmp>::pointerContentKey = true;
   Map<String*,String*,strPtrCmp>::pointerContentValue = true;
+
+  //Map of char,String
+  Multimap<char,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<char,String>::deserialize);
+  //Multimap of uint8_t,String
+  Multimap<uint8_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<uint8_t,String>::deserialize);
+  //Multimap of uint16_t,String
+  Multimap<uint16_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<uint16_t,String>::deserialize);
+  //Multimap of uint32_t,String
+  Multimap<uint32_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<uint32_t,String>::deserialize);
+  //Multimap of int64_t,String
+  Multimap<int64_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<uint64_t,String>::deserialize);
+  //Multimap of uint8_t,String
+  Multimap<int8_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<int8_t,String>::deserialize);
+  //Multimap of int16_t,String
+  Multimap<int16_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<int16_t,String>::deserialize);
+  //Multimap of int32_t,String
+  Multimap<int32_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<int32_t,String>::deserialize);
+  //Multimap of int64_t,String
+  Multimap<int64_t,String>::type = serManager->addDeserializationFunc(
+                                      &Multimap<int64_t,String>::deserialize);
+  //Multimap of char,String*
+  Multimap<char,String*>::type = serManager->addDeserializationFunc(
+                                      &Multimap<char,String*>::deserialize);
+  Multimap<char,String*>::pointerContentValue = true;
+
+  //Multimap of char,String*
+  Multimap<String*,char,strPtrCmp>::type = serManager->addDeserializationFunc(
+                                      &Multimap<String*,char,strPtrCmp>::deserialize);
+  Multimap<String*,char,strPtrCmp>::pointerContentKey = true;
   
+  //Multimap of char,String*
+  Multimap<String*,String*,strPtrCmp>::type = serManager->addDeserializationFunc(
+                                      &Multimap<String*,String*,strPtrCmp>::deserialize);
+  Multimap<String*,String*,strPtrCmp>::pointerContentKey = true;
+  Multimap<String*,String*,strPtrCmp>::pointerContentValue = true;
+
   //NullPlaceholder
   libcomm::addSupportForAutoSerializable(MyType<NullPlaceholder>());
 }

@@ -18,7 +18,7 @@
 
 #define PORT 5555
 #define ADDRESS NetAddress::getLocalIp()
-#define NUMBER_TEST 28
+#define NUMBER_TEST 30
 
 typedef bool (*CompareFunc) (const void* first, const void* second);
 bool compareString(const void* first, const void* second);
@@ -36,6 +36,8 @@ bool compareVectorUInt32(const void* first, const void* second);
 bool compareVectorUInt64(const void* first, const void* second);
 bool compareVectorString(const void* first, const void* second);
 bool compareVectorStringPtr(const void* first, const void* second);
+bool compareSetChar(const void* first, const void* second);
+bool compareSetUint64(const void* first, const void* second);
 bool compareBufferChars(const void* first, const void* second);
 bool compareBufferUint64t(const void* first, const void* second);
 bool compareMapUin64tBuffer(const void* first, const void* second);
@@ -484,6 +486,22 @@ void fillTestData(  Serializable **sentData,
   sentData[++i] = vECh;
   comparFuncs[i] = &compareVectorChar;
   testNames[i] = std::string("Vector<char> (empty)");
+
+  Set<char> *sCh = new Set<char>();
+  sCh->insert('a');
+  sCh->insert('b');
+  sCh->insert('c');
+  sentData[++i] = sCh;
+  comparFuncs[i] = &compareSetChar;
+  testNames[i] = std::string("Set<char>");
+
+  Set<uint64_t> *sUICh = new Set<uint64_t>();
+  sUICh->insert(87);
+  sUICh->insert(4611686018427387903ULL);
+  sUICh->insert(18446744073709551615ULL);
+  sentData[++i] = sUICh;
+  comparFuncs[i] = &compareSetUint64;
+  testNames[i] = std::string("Set<uint64_t>");
 
   Buffer<char> *bCh = new Buffer<char>();
   const char *test_bch;
@@ -1199,6 +1217,35 @@ bool compareVectorStringPtr(const void* first, const void* second) {
   return returnValue;
 }
 
+bool compareSetChar(const void* first, const void* second) {
+  if ((first == NULL) || (second == NULL)) {
+    std::cout << "NULL" << std::endl;
+    return false;
+  } else {
+    Set<char> *f = (Set<char>*) first; 
+    Set<char> *s = (Set<char>*) second; 
+    
+    bool ok = (*f == *s);
+    delete f;
+    delete s;
+    return ok;
+  }
+}
+
+bool compareSetUint64(const void* first, const void* second) {
+  if ((first == NULL) || (second == NULL)) {
+    std::cout << "NULL" << std::endl;
+    return false;
+  } else {
+    Set<uint64_t> *f = (Set<uint64_t>*) first; 
+    Set<uint64_t> *s = (Set<uint64_t>*) second; 
+    
+    bool ok = (*f == *s);
+    delete f;
+    delete s;
+    return ok;
+  }
+}
 
 bool compareBufferChars(const void* first, const void* second) {
   Buffer<char> *f = (Buffer<char>*) first;

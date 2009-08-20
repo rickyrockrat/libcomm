@@ -36,7 +36,10 @@ libcomm_structs_la_HEADERS =    \
                        structs/string_serializable.h \
                        structs/vector_serializable.h \
                        structs/buffer_serializable.h\
+                       structs/set_serializable.h\
+                       structs/multiset_serializable.h\
                        structs/map_serializable.h \
+                       structs/multimap_serializable.h \
                        structs/simple_serializable.h \
                        structs/auto_serializable.h \
                        structs/null_placeholder.h
@@ -69,7 +72,10 @@ libcomm_la_SOURCES =   \
                       structs/string_serializable.cpp \
                       structs/vector_serializable.cpp \
                       structs/buffer_serializable.cpp\
+                      structs/set_serializable.cpp \
+                      structs/multiset_serializable.cpp \
                       structs/map_serializable.cpp \
+                      structs/multimap_serializable.cpp \
                       structs/simple_serializable.cpp \
                       structs/auto_serializable.cpp \
                       structs/null_placeholder.cpp
