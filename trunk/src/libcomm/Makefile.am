@@ -23,6 +23,7 @@ libcomm_la_HEADERS =    \
                        output_stream.h\
                        serialization_manager.h \
                        thread.h \
+                       thread_garbage_collector.h \
                        mutex.h \
                        condition.h \
                        timer.h \
@@ -63,6 +64,7 @@ libcomm_la_SOURCES =   \
                       output_stream.cpp\
                       serialization_manager.cpp \
                       thread.cpp \
+                      thread_garbage_collector.cpp \
                       mutex.cpp \
                       condition.cpp \
                       timer.cpp \

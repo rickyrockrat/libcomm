@@ -14,6 +14,7 @@
 #define EX_EOF -4
 #define EX_OSTREAM_TOO_MUCH_DATA -5
 #define EX_ISTREAM_VIRTUAL_CALL -6
+#define EX_CONDITION_TIMEOUT ETIMEDOUT
 
 #include <string>
 

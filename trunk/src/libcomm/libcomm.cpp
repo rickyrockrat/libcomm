@@ -2,6 +2,7 @@
 #include "types_utils.h"
 #include "config_loader.h"
 #include "logger.h"
+#include "thread.h"
 
 #include "libcomm_structs.h"
 
@@ -303,5 +304,6 @@ void libcomm::clean() {
   //Cleanup stuff
   delete SerializationManager::getSerializationManager();
   delete ConfigLoader::getConfigLoader();
+  Thread::cleanup();
   Logger::cleanup();
 }
