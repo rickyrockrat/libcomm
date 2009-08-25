@@ -1,7 +1,11 @@
 #include "thread.h"
+#include "thread_garbage_collector.h"
+
 #include <errno.h>
 
 // TODO fix segfault join before start
+
+ThreadGarbageCollector *Thread::threadGarbageCollector = NULL;
 
 void Thread::start() {
   pthread_attr_t attr;
@@ -43,6 +47,22 @@ void Thread::cancel(void) {
   if (code != 0) {
     throw Thread::ThreadException(code);
   }
+}
+
+void Thread::cleanup(void) {
+  if (threadGarbageCollector != NULL) {
+    threadGarbageCollector->stop();
+    threadGarbageCollector->join();
+    delete threadGarbageCollector;
+  }
+}
+
+void Thread::clean(void) {
+  if (threadGarbageCollector == NULL) {
+    threadGarbageCollector = new ThreadGarbageCollector();
+    threadGarbageCollector->start();
+  }
+  threadGarbageCollector->addGarbageThread(this);
 }
 
 Thread::ThreadException::ThreadException(int code, std::string message)

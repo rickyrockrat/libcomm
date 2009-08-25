@@ -14,8 +14,15 @@
 //! Wrapper on the pthreads library for threads. Note that
 //! the class is not complete, some function will be added in the future like
 //! kill, exit, equal, cancel ...
+//!
+//! Important note: to release internal pthread memory, the join method must be
+//! called before deleting the Thread. Since join is a blocking call (waiting for
+//! the thread to finish) it may be sometimes wired to call it properly.
+//! You can use clean to elegantly join and delete a Thread from itself.
 #include "pthread.h"
 #include "exception.h"
+
+class ThreadGarbageCollector;
 
 class Thread {
 
@@ -56,6 +63,11 @@ class Thread {
         ThreadException(int code, std::string message);
     };
   
+    //! \brief Cleans the memory used by the ThreadGarbageCollector
+    //!
+    //! Cleans the memory used by the ThreadGarbageCollector. It is called by the
+    //! libcomm::clean method. Thus, this method should not be called directly.
+    static void cleanup(void);
   protected:
     
     //! \brief Thread running function
@@ -65,10 +77,22 @@ class Thread {
     //! shall return a value (which can be NULL) which is returned by
     //! the Thread::join method.
     virtual void *run(void) = 0;
+    
+    //! \brief Joins and frees the current thread. 
+    //!
+    //! This method sets the current thread to garbage. It means that it will be
+    //! eventually joined and deleted by the ThreadGarbageCollector. This method
+    //! has been intended to be called only at the end of the run method and for
+    //! dynamically allocated Thread (with new). 
+    void clean(void);
    
   private:
+    static ThreadGarbageCollector *threadGarbageCollector;
+
     static void *entryPoint(void *pthis);
     pthread_t threadId;
+
+    friend class libcomm;
 
 };
 
