@@ -8,7 +8,6 @@
 
 void TimerTask::entryPoint(sigval_t val) {
   TimerTask *tsk = (TimerTask*) val.sival_ptr;
-  tsk->timer->running = false;
   tsk->run();
 }
 
@@ -26,23 +25,25 @@ Timer::Timer(TimerTask *task) : created(false), running(false) {
 }
 
 Timer::~Timer() {
+  stopTimer();
   if (created) {
-    running = false;
     timer_delete(t);
     created = false;
   }
-  delete task;
+  if (task != NULL) delete task;
 }
 
 void Timer::setTask(TimerTask *task) {
   stopTimer();
   this->task = task;
   task->timer = this;
-  createTimer();
 }
 
 void Timer::createTimer() {
   memset(&(sigEvent),0,sizeof(sigevent));
+  memset(&(t),0,sizeof(timer_t));
+  memset(&val, 0, sizeof(val)); 
+  memset(&checkPoint, 0, sizeof(checkPoint)); 
   sigEvent.sigev_notify = (task == NULL) ? SIGEV_NONE : SIGEV_THREAD;
   if (task != NULL) {
     sigEvent.sigev_notify_function = TimerTask::entryPoint;
@@ -64,14 +65,12 @@ void Timer::startTimer(time_t sec, long nanosec) {
 
 void Timer::startTimerWithPeriod(time_t secPeriod, long nanosecPeriod,
                 time_t secExpiration, long nanosecExpiration) {
-  if (running) stopTimer();
   if (!created) createTimer();
-  memset(&val, 0, sizeof(val)); 
   val.it_interval.tv_sec = secPeriod;
   val.it_interval.tv_nsec = nanosecPeriod;
   val.it_value.tv_sec = secExpiration;
   val.it_value.tv_nsec = nanosecExpiration; 
-  memcpy(&checkPoint, &val, sizeof(val));
+  //memcpy(&checkPoint, &val, sizeof(val));
 
   long res = timer_settime(t,0, &val, NULL);
   if (res != 0) {
@@ -160,10 +159,10 @@ uint64_t Timer::getDiffTime(bool fromStart) {
 }
 
 void Timer::stopTimer() {
-  if (created) {
+  if (running) {
     running = false;
-    timer_delete(t);
-    created = false;
+    memset(&val, 0, sizeof(val)); 
+    timer_settime(t,0, &val, NULL);
   }
 }
 

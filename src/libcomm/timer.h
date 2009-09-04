@@ -36,7 +36,6 @@ class Timer {
     void createTimer();
 
     friend class TimerTask;
-
   public :
     Timer();
     Timer(TimerTask *task);
