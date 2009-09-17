@@ -32,6 +32,7 @@ class Timer {
     //struct sigaction sigAct;
     bool created;
     bool running;
+    bool periodic;
 
     void createTimer();
 
