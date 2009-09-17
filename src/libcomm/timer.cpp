@@ -8,6 +8,7 @@
 
 void TimerTask::entryPoint(sigval_t val) {
   TimerTask *tsk = (TimerTask*) val.sival_ptr;
+  if (!tsk->timer->periodic) tsk->timer->running = false;
   tsk->run();
 }
 
@@ -15,11 +16,11 @@ TimerTask::TimerTask() {}
 
 TimerTask::~TimerTask() {}
 
-Timer::Timer() : created(false), running(false) {
+Timer::Timer() : created(false), running(false), periodic(false) {
   task = (TimerTask*) NULL;
 }
 
-Timer::Timer(TimerTask *task) : created(false), running(false) {
+Timer::Timer(TimerTask *task) : created(false), running(false), periodic(false) {
   this->task = task;
   task->timer = this;
 }
@@ -77,6 +78,7 @@ void Timer::startTimerWithPeriod(time_t secPeriod, long nanosecPeriod,
     throw Timer::TimerException(errno);
   }
 
+  if ((secPeriod != 0) || (nanosecPeriod != 0)) periodic = true;
   running = true;
 }
 
@@ -161,6 +163,7 @@ uint64_t Timer::getDiffTime(bool fromStart) {
 void Timer::stopTimer() {
   if (running) {
     running = false;
+    periodic = false;
     memset(&val, 0, sizeof(val)); 
     timer_settime(t,0, &val, NULL);
   }
