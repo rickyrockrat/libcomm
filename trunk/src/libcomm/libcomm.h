@@ -3,11 +3,13 @@
 
 #include "serialization_manager.h"
 #include <typeinfo>
+#include <signal.h>
 
 template <typename T>
 class MyType {
-
 };
+
+typedef void (*SigAction) (int, siginfo_t*, void*); 
 
 class libcomm {
   
@@ -26,6 +28,7 @@ class libcomm {
       T::type = serManager->addDeserializationFunc(&T::deserialize);
       T::init();
     }
+    static void setSigPipeHandler(SigAction handler);
 };
 
 #endif
