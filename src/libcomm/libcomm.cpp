@@ -297,6 +297,13 @@ void libcomm::init() {
 
   //NullPlaceholder
   libcomm::addSupportForAutoSerializable(MyType<NullPlaceholder>());
+
+  struct sigaction sigact;
+  sigact.sa_handler = SIG_IGN;
+  sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = 0;
+  sigaction(SIGPIPE, &sigact, NULL);
+  
 }
 
 void libcomm::clean() {
@@ -306,4 +313,12 @@ void libcomm::clean() {
   delete ConfigLoader::getConfigLoader();
   Thread::cleanup();
   Logger::cleanup();
+}
+
+void libcomm::setSigPipeHandler(SigAction handler) {
+  struct sigaction sigact;
+  sigact.sa_sigaction = handler;
+  sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = 0;
+  sigaction(SIGPIPE, &sigact, NULL);
 }
