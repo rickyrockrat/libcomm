@@ -18,7 +18,9 @@ char *OutputStream::generateRemainingData(  const struct iovec *iov, int iovcnt,
   for (i = 0; i<iovcnt; ++i) {
     size_t len = iov[i].iov_len;
     if ((currentByteCount + len) > totalWritten) {
-      size_t toCopy = (currentByteCount+len) - totalWritten;
+      size_t toCopy = (totalWritten > currentByteCount)
+        ? (currentByteCount + len) - totalWritten
+        : len;
       
       data = (char*) realloc(data, toCopy + currentByteCount); 
       memcpy(&(data[currentCopyByteCount]), &(((char*)(iov[i].iov_base))[len-toCopy]), toCopy); 
