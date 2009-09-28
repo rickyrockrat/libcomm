@@ -63,6 +63,7 @@ class InputStream: virtual public Stream {
 
 };
 
+/*
 class InputStreamInterface {
   public:
     virtual size_t getReadBufferSize(void);
@@ -77,7 +78,7 @@ class InputStreamInterface {
     virtual Serializable *readObject(void);
     virtual Serializable *readObject(uint64_t nanosec);
     virtual Serializable *readObject(time_t sec, long nanosec);
-};
+};*/
 
 class BufferedInputStream: public InputStream{
   private:
