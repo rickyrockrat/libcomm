@@ -85,7 +85,7 @@ StreamWFRResult Stream::waitForReady2(StreamWFRSet sets, timespec *timeout) {
   }
 }
 
-
+#include <iostream>
 void Stream::waitForReady2(const std::vector<Stream*> *streams, StreamWFRSet sets,
   timespec *timeout, std::vector<StreamWFRResult> *result) {
   
@@ -136,11 +136,14 @@ void Stream::waitForReady2(const std::vector<Stream*> *streams, StreamWFRSet set
     switch (resultSelect) {
       case -1:
         for (size_t i = 0; i<streams->size(); ++i) {
+          std::cout << "HERE:" << i << std::endl;
           stream = (*streams)[i];
-          resultSets = computeStreamWFRSets(stream->fd, nullPtr, nullPtr, fdsErrorPtr);
-          if (resultSets != STREAM_WFR_NONE) {
-            result->push_back(StreamWFRResult(i, resultSets, errno));
-          } 
+          if (stream != NULL) {
+            resultSets = computeStreamWFRSets(stream->fd, nullPtr, nullPtr, fdsErrorPtr);
+            if (resultSets != STREAM_WFR_NONE) {
+              result->push_back(StreamWFRResult(i, resultSets, errno));
+            } 
+          }
         }
         break;
       case 0:
@@ -151,10 +154,12 @@ void Stream::waitForReady2(const std::vector<Stream*> *streams, StreamWFRSet set
       default:
         for (size_t i = 0; i<streams->size(); ++i) {
           stream = (*streams)[i];
-          resultSets = computeStreamWFRSets(stream->fd, fdsReadPtr, fdsWritePtr, fdsErrorPtr);
-          if (resultSets != STREAM_WFR_NONE) {
-            result->push_back(StreamWFRResult(i, resultSets));
-          } 
+          if (stream != NULL) {
+            resultSets = computeStreamWFRSets(stream->fd, fdsReadPtr, fdsWritePtr, fdsErrorPtr);
+            if (resultSets != STREAM_WFR_NONE) {
+              result->push_back(StreamWFRResult(i, resultSets));
+            } 
+          }
         }
         break;
     }

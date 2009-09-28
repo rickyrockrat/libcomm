@@ -292,6 +292,7 @@ BufferedInputStream::~BufferedInputStream(void) {
   if (buf != NULL) free(buf);
 }
 
+/*
 size_t InputStreamInterface::getReadBufferSize(void) {
   throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
     "InputStreamInterface::getReadBufferSize shall not be called directly");}
@@ -325,7 +326,7 @@ Serializable *InputStreamInterface::readObject(uint64_t nanosec) {
 Serializable *InputStreamInterface::readObject(time_t sec, long nanosec){
   throw InputStream::InputStreamException(EX_ISTREAM_VIRTUAL_CALL,
     "InputStreamInterface::readObject shall not be called directly");}
-
+*/
 
 void BufferedInputStream::fillBuffer(size_t size, int flags, bool netAddress) {
   ssize_t readBytes;
