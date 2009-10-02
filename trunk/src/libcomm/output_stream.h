@@ -15,7 +15,8 @@ class OutputStream: virtual public Stream {
     virtual ssize_t writeData(  const struct iovec *iov, int iovcnt,
                                 const NetAddress *addr) = 0;
 
-     
+    ssize_t writeRemainingData( const struct iovec *iov, int iovcnt,
+                                ssize_t written, const NetAddress *addr);
     char *generateRemainingData(  const struct iovec *iov, int iovcnt,
                                   size_t totalWritten, size_t *toWrite);
     

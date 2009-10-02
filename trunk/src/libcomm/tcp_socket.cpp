@@ -50,26 +50,41 @@ ssize_t TcpSocket::readRawData(   char *buffer, size_t size, int flags,
 ssize_t TcpSocket::writeData( const char *data, size_t size, int flags,
                               const NetAddress *addr) {
   ssize_t bytesWritten;
-  bytesWritten = send(fd, data, size, flags);
+  size_t totalWritten = 0;
+  
+  do {
+    bytesWritten = send(fd, &(data[totalWritten]), size-totalWritten, flags);
 
-  if (bytesWritten == -1) {
-    throw OutputStream::OutputStreamException(errno, size);
-  }
+    if (bytesWritten == -1) {
+      throw OutputStream::OutputStreamException(errno, size);
+    }
+    totalWritten += bytesWritten;
+  } while (totalWritten < size);
 
-  return bytesWritten;
+  return totalWritten;
 }
+
 ssize_t TcpSocket::writeData( const struct iovec *iov, int iovcnt,
                               const NetAddress *addr) {
-  int currentIovCnt;
-  int totalIovCnt = 0;
+  int iovcntBlocks;
   size_t totalQuantityWritten = 0;
   ssize_t quantityWritten = 0;
 
-  while (totalIovCnt < iovcnt) {
-    currentIovCnt = iovcnt - totalIovCnt;
-    if (currentIovCnt > MAX_IOV) currentIovCnt = MAX_IOV;
+  size_t t_test = 0;
+  for (int i = 0; i<iovcnt; ++i) {
+    t_test += iov[i].iov_len;
+  }
+  
+  iovcntBlocks = (iovcnt / MAX_IOV) + (iovcnt % MAX_IOV == 0) ? 0 : 1;
+  
+  if (iovcntBlocks > 1) {
+    for (int i = 0; i<iovcntBlocks; ++i) {
+      int iovcntToWrite = ((i+1*MAX_IOV) > iovcnt) ? iovcnt - (i+1) * MAX_IOV : MAX_IOV; 
 
-    quantityWritten = writev(fd, &(iov[totalIovCnt]), currentIovCnt);
+      totalQuantityWritten += writeData(&(iov[i*MAX_IOV]), iovcntToWrite, addr); 
+    }
+  } else {
+    quantityWritten = writev(fd, iov, iovcnt);
     if (quantityWritten == -1) {
       size_t toWrite;
       char *dataLeft;
@@ -78,7 +93,7 @@ ssize_t TcpSocket::writeData( const struct iovec *iov, int iovcnt,
       throw OutputStream::OutputStreamException(errno, toWrite,  dataLeft, quantityWritten);
     }
     totalQuantityWritten += quantityWritten;
-    totalIovCnt += currentIovCnt;
+    totalQuantityWritten += writeRemainingData(iov, iovcnt, quantityWritten, addr);
   }
   
   return totalQuantityWritten;

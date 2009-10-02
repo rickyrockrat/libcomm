@@ -100,7 +100,7 @@ NetMessage *InputStream::parseBlockHeader(NetMessage *netMessage, size_t *blockS
   size_t nextSize;
   NetMessage *newNetMessage = NULL;
   char buff[32];
-
+  
   //flags
   try {
     size_t sizeFlags = NetMessage::getFlagsHeaderSize();
