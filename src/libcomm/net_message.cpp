@@ -129,9 +129,10 @@ size_t NetMessage::generateBlockHeader(int type, size_t size, bool toFree, chari
 
   // Flags
   iov.iov_base[index] = 0;
-  iov.iov_base[index] |= (realSize & 0x1F);
+  iov.iov_base[index] |= (realSize & 0xF);
   iov.iov_base[index] |= ((toFree << 6) & 0x40);
   iov.iov_base[index] |= ((((type < 0) ? 0 : 1) << 5) & 0x20);
+  //std::cout << (void*) (iov.iov_base[index] & (0xFF)) << std::endl;
   index += flagsHeader;
 
   //Type
@@ -158,8 +159,7 @@ size_t NetMessage::generateBlockHeader(int type, size_t size, bool toFree, chari
   } else {
     memcpy(&(iov.iov_base[index]), &(swap64.chars[8-realSize]), realSize);
   }
-  /*std::cout << (void*) iov.iov_base[index] << std::endl;
-  std::cout << (void*) iov.iov_base[index+1] << std::endl;
+  /*std::cout << (void*) iov.iov_base[index+1] << std::endl;
   std::cout << (void*) iov.iov_base[index+2] << std::endl;
   std::cout << (void*) iov.iov_base[index+3] << std::endl;*/
 
@@ -176,7 +176,7 @@ size_t NetMessage::generatePrimitiveBlockHeader(chariovec &iov) {
 
   // Flags
   iov.iov_base[index] = 0;
-  iov.iov_base[index] |= (type  & 0x1F);
+  iov.iov_base[index] |= (type  & 0xF);
   iov.iov_base[index] |= ((true << 6) & 0x40);
   iov.iov_base[index] |= ((true << 5) & 0x22);
   index += flagsHeader;
@@ -361,12 +361,13 @@ NetMessage *NetMessage::parseFlags(const char *buff, size_t *nextSize,
   int len;
   
   isNetMessage = (bool) ((0x20 & buff[0]) >> 5);
-  *nextSize = ((buff[0]) & 0x1F);
+  *nextSize = ((buff[0]) & 0xF);
   specialFlag = (bool) ((0x40 & buff[0]) >> 6);
 
-  /*std::cout << "isNetMessage:" << isNetMessage << std::endl;
-  std::cout << "nextSize:" << *nextSize << std::endl;
-  std::cout << "specialFlag:" << specialFlag << std::endl;*/
+  //std::cout << "nextSize:" << *nextSize << std::endl;
+  //std::cout << "specialFlag:" << specialFlag << std::endl;
+  //std::cout << "isNetMessage:" << isNetMessage << std::endl;
+  //std::cout << "->" << (void*) (buff[0] & (0xFF)) << std::endl;
   
   if (isNetMessage) {
     if (specialFlag) {

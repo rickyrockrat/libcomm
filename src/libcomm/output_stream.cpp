@@ -8,6 +8,37 @@
 OutputStream::~OutputStream(void) {
 }
 
+ssize_t OutputStream::writeRemainingData( const struct iovec *iov, int iovcnt,
+                            ssize_t written, const NetAddress *addr) {
+  size_t totalSizeToWrite = 0;
+  ssize_t newWritten = 0;
+
+  for (int i = 0; i<iovcnt; ++i) {
+    size_t len;
+    
+    len = iov[i].iov_len;
+    totalSizeToWrite += len; 
+
+    if ((size_t) written < totalSizeToWrite) {
+      size_t toWrite;
+      
+      toWrite = totalSizeToWrite - written;
+      if (toWrite < len) {
+        newWritten += writeData(&(((char*)iov[i].iov_base)[len - toWrite]), toWrite, 0, addr);
+        ++i;
+      }
+
+      if (i < iovcnt) {
+        newWritten += writeData(&(iov[i]), iovcnt-i, addr);
+      }
+
+      break;
+    }
+  }
+
+  return newWritten;
+}
+
 char *OutputStream::generateRemainingData(  const struct iovec *iov, int iovcnt,
                               size_t totalWritten, size_t *toWrite) {
   size_t currentByteCount = 0;

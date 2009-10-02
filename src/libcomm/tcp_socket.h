@@ -8,7 +8,7 @@ class TcpSocket : public IONetSocket {
   private :
 
     TcpSocket(int sockedId);
-    
+
     ssize_t readRawData(char *buffer, size_t size, int flags,
                         NetAddress *addr);
     ssize_t writeData(  const char *data, size_t size, int flags,

@@ -75,6 +75,7 @@ void libcomm::init() {
   Vector<String*>::type = serManager->addDeserializationFunc(
                                       &Vector<String*>::deserialize);
   Vector<String*>::pointerContent = true;
+  
 
   // Set of chars
   Set<char>::type = serManager->addDeserializationFunc(
@@ -119,6 +120,7 @@ void libcomm::init() {
   Set<uint64_t>::type = serManager->addDeserializationFunc(
                                       &Set<uint64_t>::deserialize);
   
+
   // Set of strings
   Set<String>::type = serManager->addDeserializationFunc(
                                       &Set<String>::deserialize);
@@ -127,6 +129,7 @@ void libcomm::init() {
   Set<String*>::type = serManager->addDeserializationFunc(
                                       &Set<String*>::deserialize);
   Set<String*>::pointerContent = true;
+
 
   // Multiset of chars
   Multiset<char>::type = serManager->addDeserializationFunc(
@@ -184,6 +187,7 @@ void libcomm::init() {
   //Buffer of chars
   Buffer<char>::type = serManager->addDeserializationFunc(
                                       &Buffer<char>::deserialize);
+
   //Buffer of int8_t
   Buffer<int8_t>::type = serManager->addDeserializationFunc(
                                       &Buffer<int8_t>::deserialize);
