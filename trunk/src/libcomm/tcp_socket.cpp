@@ -70,16 +70,11 @@ ssize_t TcpSocket::writeData( const struct iovec *iov, int iovcnt,
   size_t totalQuantityWritten = 0;
   ssize_t quantityWritten = 0;
 
-  size_t t_test = 0;
-  for (int i = 0; i<iovcnt; ++i) {
-    t_test += iov[i].iov_len;
-  }
-  
   iovcntBlocks = (iovcnt / MAX_IOV) + (iovcnt % MAX_IOV == 0) ? 0 : 1;
   
   if (iovcntBlocks > 1) {
     for (int i = 0; i<iovcntBlocks; ++i) {
-      int iovcntToWrite = ((i+1*MAX_IOV) > iovcnt) ? iovcnt - (i+1) * MAX_IOV : MAX_IOV; 
+      int iovcntToWrite = ((i+1*MAX_IOV) > iovcnt) ? iovcnt - i * MAX_IOV : MAX_IOV; 
 
       totalQuantityWritten += writeData(&(iov[i*MAX_IOV]), iovcntToWrite, addr); 
     }
