@@ -28,6 +28,18 @@ Thread::~Thread() {
 
 void *Thread::entryPoint(void *pthis) {
    Thread * pt = (Thread*)pthis;
+
+   /*sigset_t set;
+     sigemptyset(&set);
+     sigaddset(&set, SIGPIPE);
+     pthread_sigmask();*/
+
+   struct sigaction sigact;
+   sigact.sa_handler = SIG_IGN;
+   sigemptyset(&sigact.sa_mask);
+   sigact.sa_flags = 0;
+   sigaction(SIGPIPE, &sigact, NULL);
+
    return pt->run();
 }
 
