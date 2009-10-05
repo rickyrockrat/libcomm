@@ -2,6 +2,7 @@
 #include "thread_garbage_collector.h"
 
 #include <errno.h>
+#include <signal.h>
 
 // TODO fix segfault join before start
 
