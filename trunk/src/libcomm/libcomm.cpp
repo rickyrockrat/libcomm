@@ -302,11 +302,11 @@ void libcomm::init() {
   //NullPlaceholder
   libcomm::addSupportForAutoSerializable(MyType<NullPlaceholder>());
 
-  /*struct sigaction sigact;
+  struct sigaction sigact;
   sigact.sa_handler = SIG_IGN;
   sigemptyset(&sigact.sa_mask);
   sigact.sa_flags = 0;
-  sigaction(SIGPIPE, &sigact, NULL);*/
+  sigaction(SIGPIPE, &sigact, NULL);
   
 }
 
