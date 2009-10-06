@@ -20,6 +20,8 @@ const int MAX_IOV = sysconf(_SC_IOV_MAX);
 UdpSocket::UdpSocket(): IONetSocket(SOCK_DGRAM), maxSize(MAX_UDP_PACKET_SIZE) {}
 
 UdpSocket::UdpSocket(int localPort): IONetSocket(SOCK_DGRAM), maxSize(MAX_UDP_PACKET_SIZE) {
+  BooleanOption opt(BooleanOption::reuseAddrOpt, true);
+  setSocketOption(opt);
   bindSocket(localPort);
 }
 
