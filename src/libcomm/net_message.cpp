@@ -5,7 +5,7 @@
 #include "types_utils.h"
 #include "exception.h"
 
-#define FAST_VECT_BLOCK_SIZE 8
+#define FAST_VECT_BLOCK_SIZE 128
 
 const size_t flagsHeader = sizeof(uint8_t);
 const size_t typeHeader = sizeof(uint16_t);
