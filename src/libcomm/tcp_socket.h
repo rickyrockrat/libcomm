@@ -3,6 +3,8 @@
 
 #include "net_socket.h"
 #include <vector>
+#include <netinet/tcp.h>
+
 
 class TcpSocket : public IONetSocket {
   private :
@@ -23,6 +25,11 @@ class TcpSocket : public IONetSocket {
     virtual ~TcpSocket();
 
     void shutdownSocket(bool read, bool write);
+
+    void disable_nable(void) {
+      int one = 1;
+      setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one));
+    }
 };
 
 class TcpServerSocket : public NetSocket {
