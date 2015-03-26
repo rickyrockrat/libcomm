@@ -1,0 +1,1 @@
+Libcomm provides simple wrappers on common POSIX primitives, such as mutex, condition, threads, sockets, etc. It also implements an efficient and space saving object serialization system. It also includes some utility classes for various purposes (config loading, logging, etc.). Libcomm aims to ease the development of distributed applications in C++.
